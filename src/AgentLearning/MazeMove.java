@@ -68,12 +68,16 @@ public class MazeMove {
     public void SearchForExit() {
         if (!done && !movelist.IsEmpty()) {
             MoveInfo cell = movelist.Pop();    // Where Enemy is currently (and what direction)
+            System.out.println("Enemy: popped y " + cell.y + " x " + cell.x + " move " + cell.move + " stack length is " + movelist.length);
             if (cell.y == mazeinfo.getTargetM() && cell.x == mazeinfo.getTargetN()) // If at the exit
-            {
+            {              
                 movelist.Push(cell.y, cell.x, MoveInfo.NONE);
+                System.out.println("Enemy: done, pushing y" + cell.y + " x " + cell.x + " move " + cell.move);
             } else {
-                if (!(movelist.length > 1)){ // only record previous moves if the Enemy has moved at least once (not counting the start 'move')
+                if ((movelist.length > 0)){ // only record previous moves if the Enemy has moved at least once (not counting the start 'move')
                     onebehindmovelist.Push(cell.y, cell.x, cell.move); // Push the unchanged values
+                }
+                    System.out.println("Enemy: pushing to 'onebehind' y" + cell.y + " x " + cell.x + " move " + cell.move);
                     for (int i = 1; i < 5; i++) {
                         int move = 0;
                         int xcoord = cell.x;
@@ -95,13 +99,11 @@ public class MazeMove {
                         if (!(mazeinfo.maze[ycoord][xcoord].isExplored() && mazeinfo.seen[ycoord][xcoord])) {
                             mazeinfo.seen[ycoord][xcoord] = true;
                             movelist.Push(ycoord, xcoord, move);
-                            if (movelist.length < 1){
-                                onebehindmovelist.Push(ycoord, xcoord, move);
-                            }
+                            System.out.println("Enemy: valid loc and not seen, pushing y" + cell.y + " x " + cell.x + " move " + cell.move);
                         }
                     }
                 }
             }
-        }
+        
     }
 }

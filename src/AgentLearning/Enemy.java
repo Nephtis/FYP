@@ -74,13 +74,14 @@ public class Enemy extends Agent{
                 case 0: // Patrol
                     // Right now, just move at random. Change and expand upon this later
                     System.out.println("Searching for exit...");
-                    moves.SearchForExit();
                     view.paintEnemy(moves.GetLocation(), moves);
+                    moves.SearchForExit();
+                    
                     // sometimes null exception in the if?
                     if (moves.getYCoord() == mazeinfo.getTargetM() && moves.getXCoord() == mazeinfo.getTargetN()) { // coords are the exit coords
                         moves.setDone();
                         System.out.println("Exit found.");
-                        step = 2;
+                        doDelete();
                         break;
                     }
                 break;
