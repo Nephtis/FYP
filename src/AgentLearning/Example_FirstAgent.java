@@ -17,7 +17,7 @@ import jade.lang.acl.MessageTemplate;
  * @author Dave
  * NOTE: THIS IS AN EXAMPLE CLASS FOR MY OWN REFERENCE AND WILL NOT BE PART OF THE FINAL PRODUCT
  */
-public class FirstAgent extends Agent{
+public class Example_FirstAgent extends Agent{
     private AID[] secondAgents; // list of other agents (of a different type)
     
     // Agent initialization  

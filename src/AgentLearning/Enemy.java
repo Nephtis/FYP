@@ -73,17 +73,18 @@ public class Enemy extends Agent{
             switch(step){
                 case 0: // Patrol
                     // Right now, just move at random. Change and expand upon this later
-                    System.out.println("Searching for exit...");
+                    System.out.println("Patrolling...");
                     view.paintEnemy(moves.GetLocation(), moves);
-                    moves.SearchForExit();
+                    moves.PatrolArea(0,0,0,0);
                     
                     // sometimes null exception in the if?
-                    if (moves.getYCoord() == mazeinfo.getTargetM() && moves.getXCoord() == mazeinfo.getTargetN()) { // coords are the exit coords
-                        moves.setDone();
-                        System.out.println("Exit found.");
-                        doDelete();
-                        break;
-                    }
+//                    if (moves.getYCoord() == mazeinfo.getTargetM() && moves.getXCoord() == mazeinfo.getTargetN()) { // coords are the exit coords
+//                        moves.setDone();
+//                        view.paintEnemy(moves.GetLocation(), moves); // re-paint so we're not left with an afterimage
+//                        System.out.println("Exit found.");
+//                        doDelete();
+//                        break;
+//                    }
                 break;
                     
 //                    if(true){ // if player spotted or something?

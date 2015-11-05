@@ -17,11 +17,11 @@ import java.util.*;
  * @author Dave
  * NOTE: THIS IS AN EXAMPLE CLASS FOR MY OWN REFERENCE AND WILL NOT BE PART OF THE FINAL PRODUCT
  */
-public class SecondAgent extends Agent{
+public class Example_SecondAgent extends Agent{
     // The catalogue of items for sale (maps the title to a price)
     private Hashtable catalogue;
     // The GUI by means of which the user can add items to the catalogue
-    private SellerGui myGui;
+    private Example_SellerGui myGui;
     
     // Agent initialization  
     protected void setup() {         
@@ -29,7 +29,7 @@ public class SecondAgent extends Agent{
         // Create the catalogue
         catalogue = new Hashtable();
         // Create and show the GUI
-        myGui = new SellerGui(this);
+        myGui = new Example_SellerGui(this);
         myGui.showGui();
         
         // Register the selling service in the yellow pages

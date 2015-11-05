@@ -11,12 +11,12 @@ import javax.swing.*;
  * @author Dave
  * NOTE: THIS IS AN EXAMPLE CLASS FOR MY OWN REFERENCE AND WILL NOT BE PART OF THE FINAL PRODUCT
  */
-public class SellerGui extends JFrame{
-    private SecondAgent myAgent;
+public class Example_SellerGui extends JFrame{
+    private Example_SecondAgent myAgent;
     
     private JTextField titleField, priceField;
     
-    SellerGui(SecondAgent a){
+    Example_SellerGui(Example_SecondAgent a){
         // super() calls the parent constructor with no arguments?
         // Here it is used with arguments
         super(a.getLocalName());
@@ -48,7 +48,7 @@ public class SellerGui extends JFrame{
                     titleField.setText("");
                     priceField.setText("");
                 } catch (Exception e){
-                    JOptionPane.showMessageDialog(SellerGui.this, "Invalid values. " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(Example_SellerGui.this, "Invalid values. " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
