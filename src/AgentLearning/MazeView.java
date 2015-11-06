@@ -175,7 +175,7 @@ public class MazeView extends JFrame implements KeyListener {
         
         previous = mazemove.GetPreviousLocation();
         if (previous != null){
-            System.out.println("Drawing enemy blank");
+            //System.out.println("Drawing enemy blank");
             x = (previous.x * scalex) + 20;
             y = TOP + 20 + previous.y * scaley;
             g.drawImage(blank, x + (scalex / 2), y + (scaley / 2), mx, my, null);
@@ -209,7 +209,7 @@ public class MazeView extends JFrame implements KeyListener {
         // Paint over the player's previous location with a blank tile to avoid 'afterimages'
         playerprevious = player.GetPreviousLocation();
         if (playerprevious != null){
-            System.out.println("Drawing blank");
+            //System.out.println("Drawing blank");
             x = (playerprevious.x * scalex) + 20;
             y = TOP + 20 + playerprevious.y * scaley;
             g.drawImage(blank, x + (scalex / 2), y + (scaley / 2), mx, my, null);

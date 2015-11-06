@@ -14,6 +14,9 @@ public class MazeMove {
     private TrackInfo onebehindmovelist;
     private TrackInfo patrolmovelist; // Stores the moves to do with patrolling
     private TrackInfo onebehindpatrolmovelist;
+    // Wait... do I need this? Why not just use one movelist? It will just behave differently under different circumstances
+    private TrackInfo pursuemovelist; // Stores the moves to do with pursuing the player
+    private TrackInfo onebehindpursuemovelist;
     private Cell[][] maze;
     private PrimMazeInfo mazeinfo;
     private boolean done;
@@ -37,7 +40,7 @@ public class MazeMove {
 
     // Are there more moves?
     public boolean HasMoreMoves() {
-        return !patrolmovelist.IsEmpty();
+        return !movelist.IsEmpty();
     }
 
     // Have we found the exit? 
@@ -47,23 +50,23 @@ public class MazeMove {
     }
 
     public MoveInfo GetLocation() {
-        return patrolmovelist.Peek();
+        return movelist.Peek();
     }
     
     public MoveInfo GetPreviousLocation(){
-        return onebehindpatrolmovelist.Peek();
+        return onebehindmovelist.Peek();
     }
     
     // For agent...
     public int getXCoord(){
-        if (patrolmovelist.Peek() != null){
-            return patrolmovelist.Peek().x;
+        if (movelist.Peek() != null){
+            return movelist.Peek().x;
         }
         return 0;
     }
     public int getYCoord(){
-        if (patrolmovelist.Peek() != null){
-            return patrolmovelist.Peek().y;
+        if (movelist.Peek() != null){
+            return movelist.Peek().y;
         }
         return 0;
     }
@@ -117,14 +120,14 @@ public class MazeMove {
     public void PatrolArea(int x, int y, int m, int n){
         // patrol (x,y) to (m,n) - I guess this will get generated depending on what mazeinfo is (i.e. give them an in-bounds area of at least this size)
         // worth keeping a 'master' movelist? or just pass the last location from the movelist we 'came from' when the current behaviour is over?
-        if (!done && !patrolmovelist.IsEmpty())
+        if (!done && !movelist.IsEmpty())
         {
             Random randomGenerator = new Random();
-            MoveInfo currentCell = patrolmovelist.Pop();
-            System.out.println("Popped " + currentCell.y + " " + currentCell.x + " " + currentCell.move); 
-            System.out.println("Stack length is: " + patrolmovelist.length);
-            if (patrolmovelist.length >= 0){ // only record previous moves if the Enemy has moved at least once (not counting the start 'move')
-                onebehindpatrolmovelist.Push(currentCell.y, currentCell.x, currentCell.move); // Push the unchanged values
+            MoveInfo currentCell = movelist.Pop();
+            //System.out.println("Popped " + currentCell.y + " " + currentCell.x + " " + currentCell.move); 
+            //System.out.println("Stack length is: " + movelist.length);
+            if (movelist.length >= 0){ // only record previous moves if the Enemy has moved at least once (not counting the start 'move')
+                onebehindmovelist.Push(currentCell.y, currentCell.x, currentCell.move); // Push the unchanged values
             }
             int i = 1;
             while (i < 5){
@@ -134,34 +137,40 @@ public class MazeMove {
                 int ycoord = currentCell.y;
                 int move = currentCell.move;
                 // Where can we move?
-                System.out.println("rand is " + rand);
+                //System.out.println("rand is " + rand);
                 if ((rand == MoveInfo.NORTH) && (maze[ycoord][xcoord].northwall.isBroken())) {
-                    System.out.println("move is " + move);
+                    //System.out.println("move is " + move);
                     --ycoord;   // Up
                     move = 1;
                     i++;
                 } else if ((rand == MoveInfo.EAST) && maze[ycoord][xcoord].eastwall.isBroken()) {
-                    System.out.println("move is " + move);
+                    //System.out.println("move is " + move);
                     ++xcoord;   // Right
                     move = 2;
                     i++;
                 } else if ((rand == MoveInfo.SOUTH) && maze[ycoord][xcoord].southwall.isBroken()) {
-                    System.out.println("move is " + move);
+                    //System.out.println("move is " + move);
                     ++ycoord;   // Down
                     move = 3;
                     i++;
                 } else if ((rand == MoveInfo.WEST) && maze[ycoord][xcoord].westwall.isBroken()) {
-                    System.out.println("move is " + move);
+                    //System.out.println("move is " + move);
                     --xcoord;   // Left
                     move = 4;
                     i++;
                 }
-                System.out.println("Pushing " + ycoord + " " + xcoord + " " + move);                
-                patrolmovelist.Push(ycoord, xcoord, move);
-                System.out.println("Stack length is: " + patrolmovelist.length);
+                //System.out.println("Pushing " + ycoord + " " + xcoord + " " + move);                
+                movelist.Push(ycoord, xcoord, move);
+                //System.out.println("Stack length is: " + movelist.length);
                 i=5;
             }
         }
-        System.out.println("Stack is empty!");
+        //System.out.println("Stack is empty!");
+    }
+    
+    public void PursuePlayer(int playerY, int playerX){
+        // Head for the player
+        // Potentially we might get 'stuck', so have a check to see if we haven't moved for the past 3 iterations or something
+        // otherwise just blindly rush towards the player?
     }
 }
