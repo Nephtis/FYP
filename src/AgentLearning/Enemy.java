@@ -38,8 +38,8 @@ public class Enemy extends Agent{
         // Print a welcome message     
         System.out.println("    Enemy "+getAID().getName()+" is ready.");
         
-        // Add a TickerBehaviour that does things every 1 seconds
-        addBehaviour(new Patrol(this, 1000));
+        // Add a TickerBehaviour that does things every (0.5) seconds
+        addBehaviour(new Movement(this, 500));
         System.out.println("End of setup()");
     } // end of setup
     
@@ -52,8 +52,9 @@ public class Enemy extends Agent{
     /**
 	Inner class DoThings.
     */
-    private class Patrol extends TickerBehaviour{ 
-        public Patrol(Agent a, long period) {
+    private class Movement extends TickerBehaviour{ // 'movement' is one thing, perhaps have multiple behaviours running concurrently?
+        // e.g. 'movement' and 'vision'?
+        public Movement(Agent a, long period) {
             super(a, period);
         }
         
@@ -63,13 +64,12 @@ public class Enemy extends Agent{
         MessageTemplate mt; // The template to receive replies  
         
         protected void onTick(){
-
-        //public void action(){
             // re-declaring here seems redundant but get null 
             // pointer exception when done above (outside setup())
-            Object[] args = getArguments();  // args [0] = maze, args[1] = mazeinfo
+            Object[] args = getArguments();  // args [0] = maze, [1] = mazeinfo, [2] = mazeview, [3] = player
             PrimMazeInfo mazeinfo = (PrimMazeInfo) args[1];
             MazeView view = (MazeView) args[2];
+            PlayerMazeMove player = (PlayerMazeMove) args[3];
             switch(step){
                 case 0: // Patrol
                     // Right now, just move at random. Change and expand upon this later
@@ -85,15 +85,18 @@ public class Enemy extends Agent{
 //                        doDelete();
 //                        break;
 //                    }
+                    
+                    if ((moves.getYCoord() == player.GetLocation().y) && (moves.getXCoord() == player.GetLocation().x)){ // for now...
+                        //ALERT MODE
+                        // Send alert message to other agents
+                        view.paintEnemy(moves.GetLocation(), moves); // re-paint so we're not left with an afterimage
+                        step = 1; // change to different 'action'
+                        break;
+                    }
                 break;
                     
-//                    if(true){ // if player spotted or something?
-//                        // Notify the other agents, then go into 'pursue' mode
-                    // remove patrol behaviour, add pursue behaviour
-//                        step = 1;
-//                        break;
-//                    }
-                case 1:              
+                case 1:
+                    System.out.println("ALERT MODE");
                     break;    
                 case 2:    
                     //step = 3;
@@ -109,6 +112,6 @@ public class Enemy extends Agent{
 //            System.out.println("Done.");
 //            return (step == 2 || step == 4);
 //        }
-    } // End of inner class Patrol
+    } // End of inner class Movement
     
 }

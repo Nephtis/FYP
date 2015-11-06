@@ -129,7 +129,7 @@ public class MazeMove {
             int i = 1;
             while (i < 5){
                 // select a random direction to move...
-                int rand = randomGenerator.nextInt(((4)-1)+1); // +1 so it can't be 0 - therefor it's in the range 1-4
+                int rand = randomGenerator.nextInt((4)+1); // +1 so it can't be 0 - therefore it's in the range 1-4
                 int xcoord = currentCell.x;
                 int ycoord = currentCell.y;
                 int move = currentCell.move;

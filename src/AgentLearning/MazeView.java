@@ -34,7 +34,7 @@ public class MazeView extends JFrame implements KeyListener {
     private PlayerMazeMove player;  // The player, who can move freely  
     private MoveInfo playercurrent;
     private MoveInfo playerprevious;
-    private Object[] params = new Object[3];
+    private Object[] params = new Object[4];
     // For maze scaling:
     private int scalex;
     private int scaley;
@@ -75,6 +75,7 @@ public class MazeView extends JFrame implements KeyListener {
         params[0] = maze;
         params[1] = mazeinfo;
         params[2] = this;
+        params[3] = player;
         
         // Create a runtime, container, and agent(s)
         Runtime rt = Runtime.instance(); 
