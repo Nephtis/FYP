@@ -91,7 +91,13 @@ public class Enemy extends Agent{
                     if ((moves.getYCoord() == player.GetLocation().y) && (moves.getXCoord() == player.GetLocation().x)){ // for now...
                         //ALERT MODE
                         // Send alert message to other agents
-                        System.out.println("Player spotted, switching to alert mode!");
+                        System.out.println("Player spotted, waiting 3 secs (so player can move away)"); // for now
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        System.out.println("Done waiting, go to alert mode!");
                         view.paintEnemy(moves.GetLocation(), moves); // re-paint so we're not left with an afterimage
                         step = 1; // change to different 'action' (relative to movement?)
                         break;
@@ -105,16 +111,15 @@ public class Enemy extends Agent{
                     //(ms is still used at the top level of the behaviour, this just says do it for ONLY 20 iterations)
                     while (i > 0){
                         System.out.println("Inside while loop... Pursuing player!");
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                        moves.PursuePlayer(0,0);
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        moves.PursuePlayer(player.GetLocation().y, player.GetLocation().x);
+                        view.paintEnemy(moves.GetLocation(), moves);
                         i--;
                         System.out.println("i is " + i);
-                        // REMEMBER: this will need to use the correct TrackInfo from MazeMove (i.e. get the correct y and x coords) 
-                        // Or will it? Try using 'master' movelist...
                         if ((moves.getYCoord() == player.GetLocation().y) && (moves.getXCoord() == player.GetLocation().x)){ // for now...
                             // 'captured' player (right now just 'if on top of player')
                             // Send capture message to other agents
