@@ -162,6 +162,24 @@ public class MazeView extends JFrame implements KeyListener {
         }
     }
     
+    // For debugging purposes (will probably be removed in final release)
+    public final void paintLineOfSight(MazeMove mazemove){
+        Graphics g = getGraphics();
+        int mx = (scalex * 4) / 8;
+        int my = (scaley * 4) / 8;
+        MoveInfo[] lineofsight = mazemove.getLineOfSight();
+        if (lineofsight != null && lineofsight.length != 0){
+            for (int i=0; i<lineofsight.length; i++){
+                if (lineofsight[i] != null){
+                    //System.out.println("Drawing line of sight, i is " + i);
+                    x = (lineofsight[i].x * scalex) + 20;
+                    y = TOP + 20 + lineofsight[i].y * scaley;
+                    g.drawImage(jeep, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                }
+            }
+        }
+    }
+    
     // Draws the enemies
     public final void paintEnemy(MoveInfo current, MazeMove mazemove){
         Graphics g = getGraphics(); // needed?
@@ -172,7 +190,7 @@ public class MazeView extends JFrame implements KeyListener {
         // (this will also let the player decide how many enemies they want e.g. from 1-10, will need a minimum maze size)
         // e.g. in a 5x5 maze you might not be able to win with 10 agents, etc.
         // could just do minEnemies = mazesize / 3?)
-        
+        // mazemove will need to be an array of all the enemies' mazemoves, which is then looped through and painted
         previous = mazemove.GetPreviousLocation();
         if (previous != null){
             //System.out.println("Drawing enemy blank");
