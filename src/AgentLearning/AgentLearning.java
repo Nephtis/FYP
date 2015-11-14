@@ -15,7 +15,8 @@ public class AgentLearning {
         int n;  // Columns
         GenerateMaze maze;
         
-        System.out.println("Enter the dimensions of the maze (m rows by n columns):");
+        // Removed ability to specify maze size, not really needed here...
+        /*System.out.println("Enter the dimensions of the maze (m rows by n columns):");
         Scanner sc = new Scanner(System.in);
         System.out.print("m: ");
         m = sc.nextInt();
@@ -23,7 +24,8 @@ public class AgentLearning {
         System.out.print("n: ");
         n = sc2.nextInt();
         System.out.println("Now generating...");
-        maze = new GenerateMaze(m, n);
+        */
+        maze = new GenerateMaze(6, 6);
         System.out.println("Maze generated successfully.");
     }
 }

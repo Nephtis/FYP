@@ -79,11 +79,11 @@ public class MazeMove {
     // Moves at random, going wherever it can that it hasn't already seen (or been on)
     // This probably needs to be a behaviour inside enemy1... or does it? Since they will all need to know about "the world" anyway, 
     // is it worth giving them all their own versions of this? Why not just make it common?
-    public void SearchForExit() {
+    public void MoveToCoords(int x, int y) {
         if (!done && !movelist.IsEmpty()) {
             MoveInfo cell = movelist.Pop();    // Where Enemy is currently (and what direction)
             if (cell.y == mazeinfo.getTargetM() && cell.x == mazeinfo.getTargetN()) // If at the exit
-            {   // This shouldn't ever execute, but just in case it somehow gets here...
+            {   
                 movelist.Push(cell.y, cell.x, MoveInfo.NONE);
             } else {
                 if (movelist.length >= 0){ // only record previous moves if the Enemy has moved at least once (not counting the start 'move')...why does >= seem to work?
@@ -127,8 +127,6 @@ public class MazeMove {
             Random randomGenerator = new Random();
             MoveInfo currentCell = movelist.Pop();
             boolean lookAround = false;
-            //System.out.println("Popped " + currentCell.y + " " + currentCell.x + " " + currentCell.move); 
-            //System.out.println("Stack length is: " + movelist.length);
             if (movelist.length >= 0){ // only record previous moves if the Enemy has moved at least once (not counting the start 'move')
                 onebehindmovelist.Push(currentCell.y, currentCell.x, currentCell.move); // Push the unchanged values
             }
@@ -144,40 +142,35 @@ public class MazeMove {
                 while (rand == 0){ // Because Random() includes 0 which we don't want here
                     rand = randomGenerator.nextInt((4)+1); // Keep generating until it's not 0 (i.e. 1-4)
                 }
-                // These are seperate because they will be changed and then pushed at the end
+                // These are separate because they will be changed and then pushed at the end
                 int xcoord = currentCell.x;
                 int ycoord = currentCell.y;
                 int move = currentCell.move;
-                // Where can we move?
-                //System.out.println("rand is " + rand);               
+                // Where can we move?             
                 if ((rand == MoveInfo.NORTH) && (maze[ycoord][xcoord].northwall.isBroken())) {
-                    //System.out.println("move is " + move);
-                    if (!lookAround){
-                        //System.out.println("Move up");
+                    if (!lookAround && (ycoord-1 > y)){ // If we're not just looking, and the potential Cell is in range (not correct?)
+                        System.out.println("ycoord-1 is " + (ycoord-1) + ", y is " + y);
                         --ycoord;   // Up
                     }
                     move = 1;
                     i++;
                 } else if ((rand == MoveInfo.EAST) && maze[ycoord][xcoord].eastwall.isBroken()) {
-                    //System.out.println("move is " + move);
-                    if (!lookAround){
-                        //System.out.println("Move right");
+                    if (!lookAround && (xcoord+1 < m)){
+                        System.out.println("xcoord+1 is " + (xcoord+1) + ", m is " + m);
                         ++xcoord;   // Right
                     }
                     move = 2;
                     i++;
                 } else if ((rand == MoveInfo.SOUTH) && maze[ycoord][xcoord].southwall.isBroken()) {
-                    //System.out.println("move is " + move);
-                    if (!lookAround){
-                        //System.out.println("Move down");
+                    if (!lookAround && (ycoord+1 < n)){
+                        System.out.println("ycoord+1 is " + (ycoord+1) + ", n is " + n);
                         ++ycoord;   // Down
                     }
                     move = 3;
                     i++;
                 } else if ((rand == MoveInfo.WEST) && maze[ycoord][xcoord].westwall.isBroken()) {
-                    //System.out.println("move is " + move);
-                    if (!lookAround){
-                        //System.out.println("Move left");
+                    if (!lookAround && (xcoord-1 > x)){
+                        System.out.println("xcoord-1 is " + (xcoord-1) + ", x is " + x);
                         --xcoord;   // Left
                     }
                     move = 4;
@@ -213,14 +206,11 @@ public class MazeMove {
                             i++;
                         }
                     }
-                }
-                //System.out.println("Pushing " + ycoord + " " + xcoord + " " + move);                
+                }              
                 movelist.Push(ycoord, xcoord, move);
-                //System.out.println("Stack length is: " + movelist.length);
                 i=5;
             }
         }
-        //System.out.println("Stack is empty!");
     }
     
     public void PursuePlayer(int playerY, int playerX){

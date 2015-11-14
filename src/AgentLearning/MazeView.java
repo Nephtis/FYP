@@ -18,6 +18,8 @@ import jade.util.leap.Properties;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -53,7 +55,7 @@ public class MazeView extends JFrame implements KeyListener {
             guardleft = getImage("images/guardleft.png"),
             guardright = getImage("images/guardright.png"),
             walltile = getImage("images/walltile.png"),
-            //mazefloor = getImage("images/mazefloor.png"),
+            //mazefloor = getImage("images/mazefloor.png"), // Not currently used
             blank = getImage ("images/blank.png");
 
     public MazeView(PrimMazeInfo info) {
@@ -68,7 +70,7 @@ public class MazeView extends JFrame implements KeyListener {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         addKeyListener(this);
         setTitle("Escape");
-        setSize(WIDTH, TOP + HEIGHT);
+        setSize(WIDTH+200, TOP + HEIGHT);
         setVisible(true);
         
         // To be passed to agent
@@ -90,8 +92,8 @@ public class MazeView extends JFrame implements KeyListener {
         }
         
         // Draw the background (once)
-        this.scalex = getWidth() / this.width - 20; // Need to make this more 'dynamic'... Was / 2, need some calc?
-        this.scaley = getHeight() / this.height - 20;
+        this.scalex = WIDTH / this.width - 20; // Need to make this more 'dynamic'... Was / 2, need some calc?
+        this.scaley = HEIGHT / this.height - 20;
         this.x = 20;
         this.y = TOP + 20;
         this.cx = (scalex * 4) / 10; 
@@ -100,6 +102,7 @@ public class MazeView extends JFrame implements KeyListener {
         
         // Draw the initial objects
         paintPlayer(getGraphics());
+        PrintGUIMessage("normal");
 }
 
     private BufferedImage getImage(String filename) {
@@ -163,6 +166,7 @@ public class MazeView extends JFrame implements KeyListener {
     }
     
     // For debugging purposes (will probably be removed in final release)
+    /*
     public final void paintLineOfSight(MazeMove mazemove){
         Graphics g = getGraphics();
         int mx = (scalex * 4) / 8;
@@ -179,6 +183,7 @@ public class MazeView extends JFrame implements KeyListener {
             }
         }
     }
+    */
     
     // Draws the enemies
     public final void paintEnemy(MoveInfo current, MazeMove mazemove){
@@ -203,15 +208,15 @@ public class MazeView extends JFrame implements KeyListener {
             x = (current.x * scalex) + 20;
             y = TOP + 20 + current.y * scaley;
             if (current.move == MoveInfo.NORTH) {
-                g.drawImage(snakeup, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                g.drawImage(guardup, x + (scalex / 2), y + (scaley / 2), mx, my, null);
             } else if (current.move == MoveInfo.EAST) {
-                g.drawImage(snakeright, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                g.drawImage(guardright, x + (scalex / 2), y + (scaley / 2), mx, my, null);
             } else if (current.move == MoveInfo.SOUTH) {
-                g.drawImage(snakedown, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                g.drawImage(guarddown, x + (scalex / 2), y + (scaley / 2), mx, my, null);
             } else if (current.move == MoveInfo.WEST) {
-                g.drawImage(snakeleft, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                g.drawImage(guardleft, x + (scalex / 2), y + (scaley / 2), mx, my, null);
             } else if (current.move == MoveInfo.NONE) {
-                g.drawImage(snakeup, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                g.drawImage(guardup, x + (scalex / 2), y + (scaley / 2), mx, my, null);
             }
         }
     }
@@ -239,35 +244,17 @@ public class MazeView extends JFrame implements KeyListener {
             x = (playercurrent.x * scalex) + 20;
             y = TOP + 20 +playercurrent.y * scaley;
             if (playercurrent.move == MoveInfo.NORTH) {
-                g.drawImage(guardup, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                g.drawImage(snakeup, x + (scalex / 2), y + (scaley / 2), mx, my, null);
             } else if (playercurrent.move == MoveInfo.EAST) {
-                g.drawImage(guardright, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                g.drawImage(snakeright, x + (scalex / 2), y + (scaley / 2), mx, my, null);
             } else if (playercurrent.move == MoveInfo.SOUTH) {
-                g.drawImage(guarddown, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                g.drawImage(snakedown, x + (scalex / 2), y + (scaley / 2), mx, my, null);
             } else if (playercurrent.move == MoveInfo.WEST) {
-                g.drawImage(guardleft, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                g.drawImage(snakeleft, x + (scalex / 2), y + (scaley / 2), mx, my, null);
             } else if (playercurrent.move == MoveInfo.NONE) {
-                g.drawImage(guardup, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                g.drawImage(snakeup, x + (scalex / 2), y + (scaley / 2), mx, my, null);
             }
         }
-
-        // Various GUI messages
-//        g.setFont(new Font("", 0, 20));
-//        g.setColor(Color.BLACK);
-//        g.drawString("The prisoner has escaped! Stop him before he reaches the exit!", 270, 80);
-//        g.drawString("\"Snake\":", 50, 120);
-//        g.drawImage(snakeleft, 50, 140, 50, 50, null);
-//        g.drawString("Seen/visited by Snake", 50, 210);
-//        g.drawString("(includes potential loc):", 50, 232);
-//        g.setColor(Color.red);
-//        g.fillRect(50, 240, 50, 50);
-//        g.setColor(Color.BLACK);
-//        g.drawString("You:", 50, 320);
-//        g.drawImage(guardleft, 50, 340, 50, 50, null);
-//        g.drawString("Exit:", 50, 420);
-//        g.drawImage(jeep, 50, 440, 50, 50, null);
-//        g.drawString("Use arrow keys to move!", 50, 550);
-//        g.drawString("Sprites from Metal Gear/Metal Gear 2: Solid Snake", 50, 950);
         
         // Check for 'stop conditions'
 //        if (current.y == mazeinfo.getTargetM() && current.x == mazeinfo.getTargetN()) { // Snake's coords are the exit coords
@@ -281,6 +268,39 @@ public class MazeView extends JFrame implements KeyListener {
 //            g.drawString("Caught the prisoner! ", 450, 700);
 //            g.drawString("Caught at " + current.y + ", " + current.x, 480, 730);
 //        }
+    }
+    
+    public final void PrintGUIMessage(String message){
+        // Paint a message on the screen to give info to the player (and help me debug...)
+        Graphics g = getGraphics();
+        g.setFont(new Font("", 0, 40));
+        g.drawString("Enemy status:", 940, 80);
+        g.setFont(new Font("", 0, 60));
+        switch (message){
+            case "normal": 
+                g.drawImage(blank, 940, 100, 200, 200, null); // Paint over the previous message
+                g.setColor(Color.BLACK);
+                g.drawString("Normal", 940, 160);
+                break;
+            case "alert":
+                g.drawImage(blank, 940, 100, 200, 200, null);
+                g.setColor(Color.RED);
+                g.drawString("ALERT", 940, 160);
+                g.setColor(Color.BLACK); // Reset the colour?
+                break;
+            case "search":
+                g.drawImage(blank, 940, 100, 200, 200, null);
+                g.setColor(Color.ORANGE);
+                g.drawString("Search", 940, 160);
+                g.setColor(Color.BLACK);
+                break;
+            case "caution":
+                g.drawImage(blank, 940, 100, 200, 200, null);
+                g.setColor(Color.YELLOW);
+                g.drawString("Caution", 940, 160);
+                g.setColor(Color.BLACK);
+                break;
+        }
     }
 
     @Override
@@ -306,39 +326,65 @@ public class MazeView extends JFrame implements KeyListener {
 //        }
         switch (keyCode) {
             case KeyEvent.VK_UP:    // Up arrow key
-                if (player.HasMoreMoves() && !player.CaughtPrisoner()) {
+                if (player.HasMoreMoves()) {
                     player.Move(1); // Move North
                 }
 //                if (snake.HasMoreMoves() && !snake.ExitFound()) {
 //                    snake.SearchForExit();
                     paintPlayer(getGraphics());
+                // So the player can't hold down the arrow key and fly across the screen, force them to wait between inputs
+                    // BUT this leads to problems if you do hold it down, moves end up in a 'queue'...
+                try {
+                    Thread.sleep(150);
+                    break;
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MazeView.class.getName()).log(Level.SEVERE, null, ex);
+                }
 //                }
                 break;
             case KeyEvent.VK_DOWN:
-                if (player.HasMoreMoves() && !player.CaughtPrisoner()) {
+                if (player.HasMoreMoves()) {
                     player.Move(3);
                 }
 //                if (snake.HasMoreMoves() && !snake.ExitFound()) {
 //                    snake.SearchForExit();
                     paintPlayer(getGraphics());
+                    try {
+                    Thread.sleep(150);
+                    break;
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MazeView.class.getName()).log(Level.SEVERE, null, ex);
+                }
 //                }
                 break;
             case KeyEvent.VK_LEFT:
-                if (player.HasMoreMoves() && !player.CaughtPrisoner()) {
+                if (player.HasMoreMoves()) {
                     player.Move(4);
                 }
 //                if (snake.HasMoreMoves() && !snake.ExitFound()) {
 //                    snake.SearchForExit();
                     paintPlayer(getGraphics());
+                    try {
+                    Thread.sleep(150);
+                    break;
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MazeView.class.getName()).log(Level.SEVERE, null, ex);
+                }
 //                }
                 break;
             case KeyEvent.VK_RIGHT:
-                if (player.HasMoreMoves() && !player.CaughtPrisoner()) {
+                if (player.HasMoreMoves()) {
                     player.Move(2);
                 }
 //                if (snake.HasMoreMoves() && !snake.ExitFound()) {
 //                    snake.SearchForExit();
                     paintPlayer(getGraphics());
+                    try {
+                    Thread.sleep(150);
+                    break;
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MazeView.class.getName()).log(Level.SEVERE, null, ex);
+                }
 //                }
                 break;
         }
