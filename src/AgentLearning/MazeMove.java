@@ -2,6 +2,7 @@
 package AgentLearning;
 
 import java.util.Random;
+import java.util.Vector;
 
 /**
  *
@@ -118,100 +119,108 @@ public class MazeMove {
     }
     
     // Move at random within a certain area
-    public void PatrolArea(int x, int y, int m, int n){
-        // patrol (x,y) to (m,n) - I guess this will get generated depending on what mazeinfo is (i.e. give them an in-bounds area of at least this size)
-        // worth keeping a 'master' movelist? or just pass the last location from the movelist we 'came from' when the current behaviour is over?
-        if (!done && !movelist.IsEmpty())
-        {
+    public void PatrolArea(int xstart, int xend, int ystart, int yend){
             this.LookAhead();
             Random randomGenerator = new Random();
             MoveInfo currentCell = movelist.Pop();
+            int[] brokenWalls; // Stores ints corresponding to only the possible Walls (broken) which we will select from (i.e. ignoring unbroken ones)
             boolean lookAround = false;
             if (movelist.length >= 0){ // only record previous moves if the Enemy has moved at least once (not counting the start 'move')
                 onebehindmovelist.Push(currentCell.y, currentCell.x, currentCell.move); // Push the unchanged values
             }
-            int i = 1;
+            brokenWalls = FindBrokenWalls(currentCell.y, currentCell.x); // Find what Walls are currently broken in our Cell
+
             int rand = 0;
-            rand = randomGenerator.nextInt((5)+1); // 0 1 2 3 4
-            if (rand == 0){ // 1 in 5 chance of wanting to look around
-                //System.out.println("Just looking around...");
-                lookAround = true; // We won't move, but we will "look around" (turning on the spot)
-            }
-            while (i < 5){
-                // select a random direction to move/look...
-                while (rand == 0){ // Because Random() includes 0 which we don't want here
-                    rand = randomGenerator.nextInt((4)+1); // Keep generating until it's not 0 (i.e. 1-4)
-                }
+            rand = randomGenerator.nextInt(brokenWalls.length); // Select one of the possile directions we can move - this will be the INDEX we select a dir from
+            int direction = brokenWalls[rand]; // Select a VALID direction using the random index we generated
+            
+            int move = 0;
+            //for (int i = 1; i < 5; i++) {
+                        int xcoord = currentCell.x;
+                        int ycoord = currentCell.y;
+                        // Where can we move?
+                        if ((direction == MoveInfo.NORTH) && (maze[ycoord][xcoord].northwall.isBroken())) {
+                            --ycoord;   // Up
+                            move = 1;
+                        } else if ((direction == MoveInfo.EAST) && (maze[ycoord][xcoord].eastwall.isBroken())) {
+                            ++xcoord;   // Right
+                            move = 2;
+                        } else if ((direction == MoveInfo.SOUTH) && (maze[ycoord][xcoord].southwall.isBroken())) {
+                            ++ycoord;   // Down
+                            move = 3;
+                        } else if ((direction == MoveInfo.WEST) && (maze[ycoord][xcoord].westwall.isBroken())) {
+                            --xcoord;   // Left
+                            move = 4;
+                        }
+                        // Only push if we have moved
+                        if (ycoord != currentCell.y || xcoord != currentCell.x) {
+                            System.out.println("Moved, pushing");
+                            mazeinfo.seen[ycoord][xcoord] = true;
+                            movelist.Push(ycoord, xcoord, move);
+                            // random dir to move next...
+                            // move = randomGenerator.nextInt(4);
+                            if (move == MoveInfo.NORTH){
+                                
+                            }
+                        }
+                    //}
+            
+            /*while (i < 5){ // So we try every possible direction (since only one 'if' block gets executed at a time)
                 // These are separate because they will be changed and then pushed at the end
                 int xcoord = currentCell.x;
                 int ycoord = currentCell.y;
                 int move = currentCell.move;
-                // Where can we move?             
-                if ((rand == MoveInfo.NORTH) && (maze[ycoord][xcoord].northwall.isBroken())) {
-                    if (!lookAround && (ycoord-1 > y)){ // If we're not just looking, and the potential Cell is in range (not correct?)
-                        System.out.println("ycoord-1 is " + (ycoord-1) + ", y is " + y);
+                
+                // Actually move (or look)   
+                if ((rand == MoveInfo.NORTH) && (maze[currentCell.y][currentCell.x].northwall.isBroken())) {
+                    if (/*!lookAround && (ycoord-1 > ystart)){ // If we're not just looking
+                        System.out.println("ycoord-1 is " + (ycoord-1) + ", ystart is " + ystart);
                         --ycoord;   // Up
+                        move = MoveInfo.NORTH;
                     }
-                    move = 1;
                     i++;
-                } else if ((rand == MoveInfo.EAST) && maze[ycoord][xcoord].eastwall.isBroken()) {
-                    if (!lookAround && (xcoord+1 < m)){
-                        System.out.println("xcoord+1 is " + (xcoord+1) + ", m is " + m);
-                        ++xcoord;   // Right
-                    }
-                    move = 2;
-                    i++;
-                } else if ((rand == MoveInfo.SOUTH) && maze[ycoord][xcoord].southwall.isBroken()) {
-                    if (!lookAround && (ycoord+1 < n)){
-                        System.out.println("ycoord+1 is " + (ycoord+1) + ", n is " + n);
-                        ++ycoord;   // Down
-                    }
-                    move = 3;
-                    i++;
-                } else if ((rand == MoveInfo.WEST) && maze[ycoord][xcoord].westwall.isBroken()) {
-                    if (!lookAround && (xcoord-1 > x)){
-                        System.out.println("xcoord-1 is " + (xcoord-1) + ", x is " + x);
-                        --xcoord;   // Left
-                    }
-                    move = 4;
-                    i++;
+                } else if ((rand == MoveInfo.NORTH) && (!(maze[currentCell.y][currentCell.x].northwall.isBroken()))){ // If we can't go that way
+                    // Try a different way
+                    System.out.println("Trying to move NORTH but north wall isn't broken, trying EAST instead");
+                    rand = MoveInfo.EAST;
                 }
-                if (!lookAround){
-                    // if we're supposed to move and we haven't (e.g. we might be stuck)
-                    if (currentCell.y == ycoord && currentCell.x == xcoord){
-                        //System.out.println("Haven't moved - might be stuck, moving away");
-                        // get out of the dead-end any way we can
-                        if (move == 3 && maze[currentCell.y][currentCell.x].southwall.isBroken()){
-                            //System.out.println("South");
-                            ++ycoord;
-                            move = 3;
-                            i++;
-                        }
-                        else if (move == 1 && maze[currentCell.y][currentCell.x].northwall.isBroken()){
-                            //System.out.println("North");
-                            --ycoord;
-                            move = 1;
-                            i++;
-                        }
-                        else if (move == 2 && maze[currentCell.y][currentCell.x].eastwall.isBroken()){
-                            //System.out.println("East");
-                            ++xcoord;
-                            move = 2;
-                            i++;
-                        }
-                        else if (move == 4 && maze[currentCell.y][currentCell.x].westwall.isBroken()){
-                            //System.out.println("West");
-                            --xcoord;
-                            move = 4;
-                            i++;
-                        }
+                else if (rand == MoveInfo.EAST) {
+                    if (/*!lookAround && (xcoord+1 < xend)){
+                        System.out.println("xcoord+1 is " + (xcoord+1) + ", m is " + xend);
+                        ++xcoord;   // Right
+                        move = MoveInfo.EAST;
                     }
-                }              
+                    i++;
+                } else if ((rand == MoveInfo.EAST) && (!(maze[currentCell.y][currentCell.x].eastwall.isBroken()))){
+                    System.out.println("Trying to move EAST but east wall isn't broken, trying SOUTH instead");
+                    rand = MoveInfo.SOUTH;
+                } else if (rand == MoveInfo.SOUTH) {
+                    if (/*!lookAround && (ycoord+1 < yend)){
+                        System.out.println("ycoord+1 is " + (ycoord+1) + ", yend is " + yend);
+                        ++ycoord;   // Down
+                        move = MoveInfo.SOUTH;
+                    }
+                    i++;
+                } else if ((rand == MoveInfo.SOUTH) && (!(maze[currentCell.y][currentCell.x].southwall.isBroken()))){
+                    System.out.println("Trying to move SOUTH but south wall isn't broken, trying WEST instead");
+                    rand = MoveInfo.WEST;
+                } else if (rand == MoveInfo.WEST) {
+                    if (/*!lookAround && (xcoord-1 > xstart)){
+                        System.out.println("xcoord-1 is " + (xcoord-1) + ", xstart is " + xstart);
+                        --xcoord;   // Left
+                        move = MoveInfo.WEST;
+                    }
+                    i++;
+                } else if ((rand == MoveInfo.WEST) && (!(maze[currentCell.y][currentCell.x].westwall.isBroken()))){
+                    System.out.println("Trying to move WEST but west wall isn't broken, trying NORTH instead");
+                    rand = MoveInfo.NORTH;
+                }
+                System.out.println("THIS SHOULD ALWAYS EXECUTE");
                 movelist.Push(ycoord, xcoord, move);
                 i=5;
-            }
+            }*/
         }
-    }
+    
     
     public void PursuePlayer(int playerY, int playerX){
         // Head for the player
@@ -348,6 +357,7 @@ public class MazeMove {
                 }
             }
         }
+}
 //        if (!(lineofsight.length == 0)){
 //            for (int i=0; i<lineofsight.length; i++){
 //                //System.out.println("LookAhead: lineofsight["+i+"]" + lineofsight.Peek().y + ", x " + lineofsight.Peek().x);
@@ -355,9 +365,36 @@ public class MazeMove {
 //            }
 //        }
         //lineofsight.Push(ycoord, xcoord, move); // Push the furthest value we got to (1-3 Cells ahead)
-    }
     
     public void SearchArea(int y, int x, int m, int n){
         
+    }
+    
+    // Find what Walls are broken (i.e. traversable) in our current position
+    // so as to avoid having to constantly generate random numbers and potentially sit there until the timer runs out
+    // because we keep generating a number that corresponds to an unbroken Wall (especially prevalent in dead-ends where there's only one way out)
+    public int[] FindBrokenWalls(int ycoord, int xcoord){
+        Vector<Integer> vct = new Vector<Integer>(); // Vector to store the broke Wall reference ints (variable size so easier to do this than an array whilst "growing")
+        int brokenWalls[]; // Array to be copied into and returned at the end so we can access it normally elsewhere
+        
+        if (maze[ycoord][xcoord].northwall.isBroken()){
+            vct.add(1); // Add a reference to the Wall that's broken
+        }
+        if (maze[ycoord][xcoord].eastwall.isBroken()){
+            vct.add(2);
+        }
+        if (maze[ycoord][xcoord].southwall.isBroken()){
+            vct.add(3);
+        }
+        if (maze[ycoord][xcoord].westwall.isBroken()){
+            vct.add(4);
+        }
+        
+        brokenWalls = new int[vct.size()]; // Initialize the brokenWalls array to be the size of the vector (i.e. how many Walls are broken)
+        for (int i=0; i<brokenWalls.length; i++){ 
+            brokenWalls[i] = vct.get(i); // Copy the elements in
+        }
+        
+        return brokenWalls;
     }
 }

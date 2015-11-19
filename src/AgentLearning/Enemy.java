@@ -38,7 +38,7 @@ public class Enemy extends Agent{
         System.out.println("    Enemy "+getAID().getName()+" is ready.");
         
         // Add a TickerBehaviour that does things every (0.5) seconds
-        addBehaviour(new Movement(this, 500));
+        addBehaviour(new Movement(this, 1000));
         
         //MazeView view = (MazeView) args[2];
         //view.paintEnemy(moves.GetLocation(), moves);
@@ -81,7 +81,7 @@ public class Enemy extends Agent{
                     
                     //view.paintLineOfSight(moves);
                     //moves.LookAhead(); // also happens in PatrolArea...
-                    moves.PatrolArea(0,0,2,2);// 'Jumping' bug? Or is it the drawing? This doesn't seem to work anyway since agent roams everywhere...
+                    moves.PatrolArea(0,0,5,5);// 'Jumping' bug? Or is it the drawing? This doesn't seem to work anyway since agent roams everywhere...
                     // Think it's in lookahead - when player is 2 spaces away, it just goes to them without triggering an alert
                     view.paintEnemy(moves.GetLocation(), moves);
                     
