@@ -79,6 +79,7 @@ public class Enemy extends Agent{
             if (view.shouldreset){ // If agents need to reset
                 System.out.println("shouldreset is true, resetting agent pos...");
                 moves.ResetPosition(); // Reset pos back to start location
+                view.paintEnemy(moves.GetLocation(), moves);
             }
             switch(step){
                 case 0: // Patrol

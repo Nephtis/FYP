@@ -332,6 +332,10 @@ public class MazeMove {
     
     // Force enemy to be at a certain position (used in reset)
     public void ResetPosition(){
+        MoveInfo currentCell = movelist.Pop(); // Add old pos to onebehind movelist so it gets 'cleaned' on next paint
+        if (movelist.length >= 0){
+            onebehindmovelist.Push(currentCell.y, currentCell.x, currentCell.move);
+        }
         System.out.println("Resetting pos to x " + mazeinfo.getStartM() + " y " + mazeinfo.getStartN());
         movelist.Push(mazeinfo.getStartM(), mazeinfo.getStartN(), MoveInfo.NONE);  // re-push start loc onto stack so it will be the next thing popped off
     }
