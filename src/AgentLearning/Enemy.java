@@ -20,6 +20,9 @@ import java.util.logging.Logger;
  */
 public class Enemy extends Agent{
     public MazeMove moves; // unique list of moves that this agent has done
+    // Which step we're at will determine what action 
+    // we perform on tick
+    int step = 0;
     
     public Enemy(){
         
@@ -61,9 +64,7 @@ public class Enemy extends Agent{
             super(a, period);
         }
         
-        // Which step we're at will determine what action 
-        // we perform on tick
-        int step = 0;
+        
         int i_alert = 0; // The 'counter' controlling duration (iterations) of alert mode 
         int i_search = 0;
         int i_caution = 0;
@@ -75,14 +76,21 @@ public class Enemy extends Agent{
         
         MoveInfo[] lineofsight = new MoveInfo[3];
         protected void onTick(){
+            if (view.shouldreset){ // If agents need to reset
+                System.out.println("shouldreset is true, resetting agent pos...");
+                moves.ResetPosition(); // Reset pos back to start location
+            }
             switch(step){
                 case 0: // Patrol
                     // Right now, just move at random. Change and expand upon this later
                     
                     //view.paintLineOfSight(moves);
                     //moves.LookAhead(); // also happens in PatrolArea...
+                    
+                    
                     moves.PatrolArea(0,0,5,5);// 'Jumping' bug? Or is it the drawing? This doesn't seem to work anyway since agent roams everywhere...
                     // Think it's in lookahead - when player is 2 spaces away, it just goes to them without triggering an alert
+                    System.out.println("Painting");
                     view.paintEnemy(moves.GetLocation(), moves);
                     
                     if ((moves.getYCoord() == player.GetLocation().y) && (moves.getXCoord() == player.GetLocation().x)){ // for now...
@@ -90,10 +98,11 @@ public class Enemy extends Agent{
                         // Send capture message to other agents (including to HQ which will end the game)
                         view.paintEnemy(moves.GetLocation(), moves); // re-paint so we're not left with an afterimage
                         System.out.println("Player caught at x " + player.GetLocation().x + " y " + player.GetLocation().y);
+                        view.EndGame("lose");
                         doDelete();
                         break;
                     } 
-                    System.out.println("I'm here: x " + moves.getXCoord() + " y " + moves.getYCoord());
+                    //System.out.println("I'm here: x " + moves.getXCoord() + " y " + moves.getYCoord());
                     
                     // Check if player is in line of sight
                     // (Currently greater than 1 Cell away i.e. not next to enemy, also think about move direction being deceptive i.e. facing wrong way)
@@ -116,7 +125,7 @@ public class Enemy extends Agent{
                                         Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
                                     }
                                     System.out.println("Enemy: Done waiting, go to alert mode!");
-                                    view.paintEnemy(moves.GetLocation(), moves); // re-paint so we're not left with an afterimage
+                                    //view.paintEnemy(moves.GetLocation(), moves); // re-paint so we're not left with an afterimage
                                     step = 1; // change to different 'action' (relative to movement?)
                                     break;
                                 }
@@ -127,7 +136,7 @@ public class Enemy extends Agent{
                 break;
                     
                 case 1: 
-                    view.paintEnemy(moves.GetLocation(), moves); // (not currently needed?) will need to get 'correct' location (from the correct TrackInfo)
+                    //view.paintEnemy(moves.GetLocation(), moves); // (not currently needed?) will need to get 'correct' location (from the correct TrackInfo)
                     // (not currently needed?) push enemy's current loc onto the "alert" TrackInfo stack (so it can "start" there)                   
                     //(time in ms is still used at the top level of the behaviour, this just says do it for ONLY 20 'iterations')
                     while (i_alert < 20){
@@ -142,6 +151,7 @@ public class Enemy extends Agent{
                             // Send capture message to other agents (including to HQ which will end the game)
                             view.paintEnemy(moves.GetLocation(), moves); // re-paint so we're not left with an afterimage
                             System.out.println("Player caught.");
+                            view.EndGame("lose");
                             doDelete();
                             break;
                         } 
@@ -158,7 +168,7 @@ public class Enemy extends Agent{
                     view.paintEnemy(moves.GetLocation(), moves);
                     //System.out.println("Searching for player...");
                     view.PrintGUIMessage("search");
-                    while (i_search < 30){
+                    while (i_search < 5){
                         // Wait time between each move
                         try {
                             Thread.sleep(1000);
@@ -187,7 +197,9 @@ public class Enemy extends Agent{
                     
                 case 3:
                     System.out.println("Entering caution mode");
-                    step = 0; // All clear, return to normal state (patrol)
+                    //step = 0; // All clear, return to normal state (patrol)
+                    moves.ResetPosition(); // testing reset
+                    step = 0;
                     break; 
                     
                 case 4: // necessary? or just do it inside if? need to see how this will work

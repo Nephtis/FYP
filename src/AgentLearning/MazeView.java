@@ -44,7 +44,10 @@ public class MazeView extends JFrame implements KeyListener {
     private int y;
     private int cx; // These are for scaling images within the maze (the exit)
     private int cy;
-
+    
+    private boolean running = true; // Determines whether the game is "running" - i.e. whether actions happen in game (will be false when game ends)
+    public boolean shouldreset = false; // Determines whether agents should reset their positions
+    
     BufferedImage jeep = getImage("images/jeep.png"),
             snakeup = getImage("images/snakeup.png"),
             snakedown = getImage("images/snakedown.png"),
@@ -129,17 +132,17 @@ public class MazeView extends JFrame implements KeyListener {
             for (int i = 0; i < this.width; i++, x += scalex) {
                 if (!(maze[j][i].northwall.isBroken())) // If the north wall isn't broken
                 {
-                    g.drawImage(walltile, x, y, scalex, scaley / 4, null); // Draw a wall there (image, xpos, ypos, width, height, observer)
+                    g.drawImage(walltile, x, y, scalex, scaley / 5, null); // Draw a wall there (image, xpos, ypos, width, height, observer)
                 }
                 if (!(maze[j][i].eastwall.isBroken())) // etc
                 {
-                    g.drawImage(walltile, x + scalex, y, scalex / 4, scaley, null);
+                    g.drawImage(walltile, x + scalex, y, scalex / 5, scaley, null);
                 }
                 if (!(maze[j][i].southwall.isBroken())) {
-                    g.drawImage(walltile, x, y + scaley, scalex, scaley / 4, null);
+                    g.drawImage(walltile, x, y + scaley, scalex, scaley / 5, null);
                 }
                 if (!(maze[j][i].westwall.isBroken())) {
-                    g.drawImage(walltile, x, y, scalex / 4, scaley, null);
+                    g.drawImage(walltile, x, y, scalex / 5, scaley, null);
                 }
                 // Draw a red square to show where Snake has 'seen'
 //                if (mazeinfo.seen[j][i]) {
@@ -270,6 +273,31 @@ public class MazeView extends JFrame implements KeyListener {
 //        }
     }
     
+    // End the game
+    public final void EndGame(String cond){
+        Graphics g = getGraphics();
+        if (cond.equalsIgnoreCase("win")){ // Player has escaped
+            running = false; // "Stop" the game
+            g.setFont(new Font("", 0, 60));
+            g.setColor(Color.GREEN);
+            g.drawString("GAME", 940, 300);
+            g.drawString("OVER", 940, 350);
+            g.setFont(new Font("", 0, 40));
+            g.drawString("You have", 940, 400);
+            g.drawString("escaped!", 940, 450);
+            // Need to make sure agents terminate...
+        } else if (cond.equalsIgnoreCase("lose")){ // Player was caught
+            running = false;
+            g.setFont(new Font("", 0, 60));
+            g.setColor(Color.RED);
+            g.drawString("GAME", 940, 300);
+            g.drawString("OVER", 940, 350);
+            g.setFont(new Font("", 0, 40));
+            g.drawString("You were", 940, 400);
+            g.drawString("caught!", 940, 450);
+        }
+    }
+    
     public final void PrintGUIMessage(String message){
         // Paint a message on the screen to give info to the player (and help me debug...)
         Graphics g = getGraphics();
@@ -326,7 +354,7 @@ public class MazeView extends JFrame implements KeyListener {
 //        }
         switch (keyCode) {
             case KeyEvent.VK_UP:    // Up arrow key
-                if (player.HasMoreMoves()) {
+                if (running) {
                     player.Move(1); // Move North
                 }
 //                if (snake.HasMoreMoves() && !snake.ExitFound()) {
@@ -343,7 +371,7 @@ public class MazeView extends JFrame implements KeyListener {
 //                }
                 break;
             case KeyEvent.VK_DOWN:
-                if (player.HasMoreMoves()) {
+                if (running) {
                     player.Move(3);
                 }
 //                if (snake.HasMoreMoves() && !snake.ExitFound()) {
@@ -358,7 +386,7 @@ public class MazeView extends JFrame implements KeyListener {
 //                }
                 break;
             case KeyEvent.VK_LEFT:
-                if (player.HasMoreMoves()) {
+                if (running) {
                     player.Move(4);
                 }
 //                if (snake.HasMoreMoves() && !snake.ExitFound()) {
@@ -373,7 +401,7 @@ public class MazeView extends JFrame implements KeyListener {
 //                }
                 break;
             case KeyEvent.VK_RIGHT:
-                if (player.HasMoreMoves()) {
+                if (running) {
                     player.Move(2);
                 }
 //                if (snake.HasMoreMoves() && !snake.ExitFound()) {
@@ -386,6 +414,16 @@ public class MazeView extends JFrame implements KeyListener {
                     Logger.getLogger(MazeView.class.getName()).log(Level.SEVERE, null, ex);
                 }
 //                }
+                break;
+                case KeyEvent.VK_R:    // "R" for reset
+                shouldreset = true; // If agent 'sees' this, reset pos
+                try {
+                    Thread.sleep(1000); // Longer, so it should happen after agent processing cycle has finished
+                    shouldreset = false; // Don't keep resetting forever
+                    break;
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MazeView.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 break;
         }
     }

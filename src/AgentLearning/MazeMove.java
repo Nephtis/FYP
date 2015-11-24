@@ -125,106 +125,45 @@ public class MazeMove {
             MoveInfo currentCell = movelist.Pop();
             int[] brokenWalls; // Stores ints corresponding to only the possible Walls (broken) which we will select from (i.e. ignoring unbroken ones)
             boolean lookAround = false;
+            
             if (movelist.length >= 0){ // only record previous moves if the Enemy has moved at least once (not counting the start 'move')
                 onebehindmovelist.Push(currentCell.y, currentCell.x, currentCell.move); // Push the unchanged values
             }
+            
             brokenWalls = FindBrokenWalls(currentCell.y, currentCell.x); // Find what Walls are currently broken in our Cell
-
             int rand = 0;
             rand = randomGenerator.nextInt(brokenWalls.length); // Select one of the possile directions we can move - this will be the INDEX we select a dir from
             int direction = brokenWalls[rand]; // Select a VALID direction using the random index we generated
             
             int move = 0;
-            //for (int i = 1; i < 5; i++) {
-                        int xcoord = currentCell.x;
-                        int ycoord = currentCell.y;
-                        // Where can we move?
-                        if ((direction == MoveInfo.NORTH) && (maze[ycoord][xcoord].northwall.isBroken())) {
-                            --ycoord;   // Up
-                            move = 1;
-                        } else if ((direction == MoveInfo.EAST) && (maze[ycoord][xcoord].eastwall.isBroken())) {
-                            ++xcoord;   // Right
-                            move = 2;
-                        } else if ((direction == MoveInfo.SOUTH) && (maze[ycoord][xcoord].southwall.isBroken())) {
-                            ++ycoord;   // Down
-                            move = 3;
-                        } else if ((direction == MoveInfo.WEST) && (maze[ycoord][xcoord].westwall.isBroken())) {
-                            --xcoord;   // Left
-                            move = 4;
-                        }
-                        // Only push if we have moved
-                        if (ycoord != currentCell.y || xcoord != currentCell.x) {
-                            System.out.println("Moved, pushing");
-                            mazeinfo.seen[ycoord][xcoord] = true;
-                            movelist.Push(ycoord, xcoord, move);
-                            // random dir to move next...
-                            // move = randomGenerator.nextInt(4);
-                            if (move == MoveInfo.NORTH){
-                                
-                            }
-                        }
-                    //}
-            
-            /*while (i < 5){ // So we try every possible direction (since only one 'if' block gets executed at a time)
-                // These are separate because they will be changed and then pushed at the end
-                int xcoord = currentCell.x;
-                int ycoord = currentCell.y;
-                int move = currentCell.move;
-                
-                // Actually move (or look)   
-                if ((rand == MoveInfo.NORTH) && (maze[currentCell.y][currentCell.x].northwall.isBroken())) {
-                    if (/*!lookAround && (ycoord-1 > ystart)){ // If we're not just looking
-                        System.out.println("ycoord-1 is " + (ycoord-1) + ", ystart is " + ystart);
-                        --ycoord;   // Up
-                        move = MoveInfo.NORTH;
-                    }
-                    i++;
-                } else if ((rand == MoveInfo.NORTH) && (!(maze[currentCell.y][currentCell.x].northwall.isBroken()))){ // If we can't go that way
-                    // Try a different way
-                    System.out.println("Trying to move NORTH but north wall isn't broken, trying EAST instead");
-                    rand = MoveInfo.EAST;
-                }
-                else if (rand == MoveInfo.EAST) {
-                    if (/*!lookAround && (xcoord+1 < xend)){
-                        System.out.println("xcoord+1 is " + (xcoord+1) + ", m is " + xend);
-                        ++xcoord;   // Right
-                        move = MoveInfo.EAST;
-                    }
-                    i++;
-                } else if ((rand == MoveInfo.EAST) && (!(maze[currentCell.y][currentCell.x].eastwall.isBroken()))){
-                    System.out.println("Trying to move EAST but east wall isn't broken, trying SOUTH instead");
-                    rand = MoveInfo.SOUTH;
-                } else if (rand == MoveInfo.SOUTH) {
-                    if (/*!lookAround && (ycoord+1 < yend)){
-                        System.out.println("ycoord+1 is " + (ycoord+1) + ", yend is " + yend);
-                        ++ycoord;   // Down
-                        move = MoveInfo.SOUTH;
-                    }
-                    i++;
-                } else if ((rand == MoveInfo.SOUTH) && (!(maze[currentCell.y][currentCell.x].southwall.isBroken()))){
-                    System.out.println("Trying to move SOUTH but south wall isn't broken, trying WEST instead");
-                    rand = MoveInfo.WEST;
-                } else if (rand == MoveInfo.WEST) {
-                    if (/*!lookAround && (xcoord-1 > xstart)){
-                        System.out.println("xcoord-1 is " + (xcoord-1) + ", xstart is " + xstart);
-                        --xcoord;   // Left
-                        move = MoveInfo.WEST;
-                    }
-                    i++;
-                } else if ((rand == MoveInfo.WEST) && (!(maze[currentCell.y][currentCell.x].westwall.isBroken()))){
-                    System.out.println("Trying to move WEST but west wall isn't broken, trying NORTH instead");
-                    rand = MoveInfo.NORTH;
-                }
-                System.out.println("THIS SHOULD ALWAYS EXECUTE");
+            int xcoord = currentCell.x;
+            int ycoord = currentCell.y;
+            // Where can we move?
+            if ((direction == MoveInfo.NORTH) && (maze[ycoord][xcoord].northwall.isBroken())) {
+                --ycoord;   // Up
+                move = 1;
+            } else if ((direction == MoveInfo.EAST) && (maze[ycoord][xcoord].eastwall.isBroken())) {
+                ++xcoord;   // Right
+                move = 2;
+            } else if ((direction == MoveInfo.SOUTH) && (maze[ycoord][xcoord].southwall.isBroken())) {
+                ++ycoord;   // Down
+                move = 3;
+            } else if ((direction == MoveInfo.WEST) && (maze[ycoord][xcoord].westwall.isBroken())) {
+                --xcoord;   // Left
+                move = 4;
+            }
+            // Only push if we have moved
+            if (ycoord != currentCell.y || xcoord != currentCell.x) {
+                System.out.println("Moved, pushing");
+                mazeinfo.seen[ycoord][xcoord] = true;
                 movelist.Push(ycoord, xcoord, move);
-                i=5;
-            }*/
-        }
+            }
+    }
     
     
     public void PursuePlayer(int playerY, int playerX){
         // Head for the player
-        System.out.println("Heading for player at y: " + playerY + " x: " + playerX + "!");
+        //System.out.println("Heading for player at y: " + playerY + " x: " + playerX + "!");
         // Potentially we might get 'stuck', so have a check to see if we haven't moved for the past 3 iterations or something
         // otherwise just blindly rush towards the player?
         MoveInfo currentCell = movelist.Pop();
@@ -250,7 +189,7 @@ public class MazeMove {
             --xcoord;
             move = 4;
         }
-        // Check if stuck...
+        // Check if stuck...    REPLACE THIS WITH FINDBROKENWALLS LOGIC
         if (currentCell.y == ycoord && currentCell.x == xcoord){
             System.out.println("Haven't moved - might be stuck, moving away");
             if (move == 3 && maze[currentCell.y][currentCell.x].southwall.isBroken()){
@@ -279,17 +218,10 @@ public class MazeMove {
     
     public void LookAhead(){
         // Add the next (maximum of 3 if we don't encounter any Walls) Cells ahead to the lineofsight TrackInfo
-        // then remove/overwrite when we change loc/direction - so we're only looking at one place at a time
-        
-        // Don't need to pop here - done in GetLineOfSight()
-        //if (!(lineofsight.length == 0)){
-//            for (int i=0; i<lineofsight.length; i++){
-//                System.out.println("LookAhead: lineofsight length is " + lineofsight.length + ", i is " + i);
-//                System.out.println("LookAhead: Popped y " + lineofsight.Peek().y + ", x " + lineofsight.Peek().x);
-//                lineofsight.Pop();
-//            }
-        //}
+        // then remove/overwrite when we change loc/direction - so we're only looking in one direction at a time
+
         MoveInfo currentCell = movelist.Peek(); // Only peek because we're not actually moving here, we just need to know where we are
+        // Don't need to 'pop' here - done in GetLineOfSight()
         int xcoord = currentCell.x;
         int ycoord = currentCell.y;
         int move = currentCell.move;
@@ -396,5 +328,11 @@ public class MazeMove {
         }
         
         return brokenWalls;
+    }
+    
+    // Force enemy to be at a certain position (used in reset)
+    public void ResetPosition(){
+        System.out.println("Resetting pos to x " + mazeinfo.getStartM() + " y " + mazeinfo.getStartN());
+        movelist.Push(mazeinfo.getStartM(), mazeinfo.getStartN(), MoveInfo.NONE);  // re-push start loc onto stack so it will be the next thing popped off
     }
 }
