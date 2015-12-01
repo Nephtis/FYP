@@ -19,6 +19,7 @@ public class MazeMove {
     private boolean done;
 
     public MazeMove(Cell[][] maze, PrimMazeInfo mazeinfo) {
+        System.out.println("mazemove, start m is " + mazeinfo.getStartM() + " start n is " + mazeinfo.getStartN());
         this.mazeinfo = mazeinfo;
         this.maze = maze;
 
@@ -119,7 +120,7 @@ public class MazeMove {
     }
     
     // Move at random within a certain area
-    public void PatrolArea(int xstart, int xend, int ystart, int yend){
+    public void PatrolArea(){
             this.LookAhead();
             Random randomGenerator = new Random();
             MoveInfo currentCell = movelist.Pop();
@@ -155,7 +156,7 @@ public class MazeMove {
             // Only push if we have moved
             if (ycoord != currentCell.y || xcoord != currentCell.x) {
                 System.out.println("Moved, pushing");
-                mazeinfo.seen[ycoord][xcoord] = true;
+                //mazeinfo.seen[ycoord][xcoord] = true;
                 movelist.Push(ycoord, xcoord, move);
             }
     }
@@ -190,6 +191,7 @@ public class MazeMove {
             move = 4;
         }
         // Check if stuck...    REPLACE THIS WITH FINDBROKENWALLS LOGIC
+        // Or ustilise some kind of 'seen' structure... "definitely don't go there" BUT player is constantly moving...
         if (currentCell.y == ycoord && currentCell.x == xcoord){
             System.out.println("Haven't moved - might be stuck, moving away");
             if (move == 3 && maze[currentCell.y][currentCell.x].southwall.isBroken()){
@@ -227,7 +229,7 @@ public class MazeMove {
         int move = currentCell.move;
         if ((move == MoveInfo.NORTH) && (maze[ycoord][xcoord].northwall.isBroken())) { // If there is a clear path to the NORTH
             //System.out.println("Look up");
-            //--ycoord;   // We can look up
+            --ycoord;   // We can look up
             lineofsight.Push(ycoord, xcoord, move); // OR instead of pushing every time, just push the final (max) coord and say 'from here to the max coord, is player in here?'
             System.out.println("LookAhead: NORTH pushed y "+ ycoord +" x "+xcoord);
             if (maze[ycoord][xcoord].northwall.isBroken()){ // Can we look 'further' up?       
@@ -243,7 +245,7 @@ public class MazeMove {
         }
         else if ((move == MoveInfo.SOUTH) && (maze[ycoord][xcoord].southwall.isBroken())) { // If there is a clear path to the SOUTH
             //System.out.println("Look down");
-            //++ycoord;   // We can look up
+            ++ycoord;   // We can look up
             lineofsight.Push(ycoord, xcoord, move);
             System.out.println("LookAhead: SOUTH pushed y "+ ycoord +" x "+xcoord);
             if (maze[ycoord][xcoord].southwall.isBroken()){  
@@ -259,7 +261,7 @@ public class MazeMove {
         }
         else if ((move == MoveInfo.EAST) && (maze[ycoord][xcoord].eastwall.isBroken())) { // If there is a clear path to the EAST
             //System.out.println("Look right");
-            //++xcoord;   // We can look right
+            ++xcoord;   // We can look right
             lineofsight.Push(ycoord, xcoord, move);
             System.out.println("LookAhead: EAST pushed y "+ ycoord +" x "+xcoord);
             if (maze[ycoord][xcoord].eastwall.isBroken()){  
@@ -275,7 +277,7 @@ public class MazeMove {
         }
         else if ((move == MoveInfo.WEST) && (maze[ycoord][xcoord].westwall.isBroken())) { // If there is a clear path to the WEST
             //System.out.println("Look left");
-            //--xcoord;   // We can look left
+            --xcoord;   // We can look left
             lineofsight.Push(ycoord, xcoord, move);
             System.out.println("LookAhead: WEST pushed y "+ ycoord +" x "+xcoord);
             if (maze[ycoord][xcoord].westwall.isBroken()){  
@@ -298,7 +300,54 @@ public class MazeMove {
 //        }
         //lineofsight.Push(ycoord, xcoord, move); // Push the furthest value we got to (1-3 Cells ahead)
     
-    public void SearchArea(int y, int x, int m, int n){
+    public void SearchArea(){
+        // y, x, m and n will be calculated outside depending on Enemy's current location, i.e. search within a 1-2 block radius of their current pos
+        // covering EVERY cell,or just hang around there
+        MoveInfo currentCell = movelist.Pop(); // Add old pos to onebehind movelist so it gets 'cleaned' on next paint
+        if (movelist.length >= 0){
+            onebehindmovelist.Push(currentCell.y, currentCell.x, currentCell.move);
+        }
+        // Add 2 to each dir of current pos, and search ALL CELLS within that area
+        // Use the 'seen' array
+        // If we can't move anywhere (i.e. we're surrounded either by walls or the next cell is out of range), then backtrack
+    }
+    
+    // Find a radius that the agent can patrol
+    // e.g. if they spawn in a corner or in the middle somewhere, make sure they still have a radius of size x to patrol
+    public void FindRadius(){ // but this will have to return something... array of size 4, holding coords?
+        MoveInfo currentCell = movelist.Peek(); // Peek because we're not actually moving
+        // For simplicity, we'll say each agent patrols an area of 4x4 cells. So we need to find a total area (or radius) of size 16 cells for each agent
+        // (note these can overlap)
+        
+        // currentCell should be the start pos for patrolling, and perhaps a smaller area for searching
+        
+        // Find the closest edges on two sides of either (up, left) or (down, right)
+        // We want to generate an area in the opposite direction to those edges to maximize the size
+        // Look up
+        int xcoord = currentCell.x;
+        int ycoord = currentCell.y;
+        int northval = 0; // Keeps track of how 'big' the 4 values are - at the end, we want the biggest 2 to be the direction we make our area
+        int eastval = 0;
+        int southval = 0;
+        int westval = 0;
+        // However, if they're all the same size (e.g. if an agent spawns in the middle), just generate randomly either 1 (down and right) or 2 (up and left) by default
+        if (!(maze[ycoord][xcoord].northwall.isEdge())) { // If there is a clear path (i.e. not an edge) to the NORTH
+            --ycoord;   // We can look up
+            northval++;
+            if (!(maze[ycoord][xcoord].northwall.isEdge())){ // Can we look 'further' up?       
+                --ycoord; 
+                northval++;
+                if (!(maze[ycoord][xcoord].northwall.isEdge())){ // Once more...
+                    --ycoord; 
+                    northval++;
+                    if (!(maze[ycoord][xcoord].northwall.isEdge())){ // Once more...
+                        --ycoord; 
+                        northval++;
+                    }
+                }
+            }
+        }
+        // Pick the size and direction of the patro area
         
     }
     

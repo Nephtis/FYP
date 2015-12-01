@@ -19,10 +19,8 @@ public class PlayerMazeMove {
     public PlayerMazeMove(Cell[][] maze, PrimMazeInfo mazeinfo) {
         this.mazeinfo = mazeinfo;
         this.maze = maze;
-        do {
-            playerstarty = randomGenerator.nextInt(mazeinfo.getHeight());
-            playerstartx = randomGenerator.nextInt(mazeinfo.getWidth());
-        } while (playerstarty == mazeinfo.getStartM() && playerstartx == mazeinfo.getStartN());
+        playerstarty = 9; // Always make player start bottom left
+        playerstartx = 0;
         playermovelist = new TrackInfo();
         onebehindplayermovelist = new TrackInfo();
         done = false;

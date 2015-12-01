@@ -25,7 +25,7 @@ public class AgentLearning {
         n = sc2.nextInt();
         System.out.println("Now generating...");
         */
-        maze = new GenerateMaze(6, 6);
+        maze = new GenerateMaze(10, 10);
         System.out.println("Maze generated successfully.");
     }
 }

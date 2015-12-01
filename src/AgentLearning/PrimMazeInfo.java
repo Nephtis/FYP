@@ -28,6 +28,12 @@ public class PrimMazeInfo {
             }
         }
     }
+    public void setStartM(int newM){
+        startM = newM;
+    }
+    public void setStartN(int newN){
+        startN = newN;
+    }
     public int getWidth()
     {
         return this.width;

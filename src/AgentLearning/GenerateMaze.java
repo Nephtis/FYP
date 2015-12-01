@@ -48,10 +48,12 @@ public class GenerateMaze {
         // Pick a room at random and mark it as part of the maze
         randomM = randomGenerator.nextInt(m);
         randomN = randomGenerator.nextInt(n);
-        currentM = startM = randomM;
-        currentN = startN = randomN;
+        currentM = randomM;
+        currentN = randomN;
         currentCell = maze[currentM][currentN];
         currentCell.setCellExplored(true);
+        startM = 5;
+        startN = 5;
         
         // Add the walls of the room to the wall list
         list.AddWallToList(currentCell.northwall);

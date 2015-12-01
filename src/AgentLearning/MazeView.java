@@ -44,6 +44,7 @@ public class MazeView extends JFrame implements KeyListener {
     private int y;
     private int cx; // These are for scaling images within the maze (the exit)
     private int cy;
+    public int enemyspawn = 0; // Deciding where the enemy spawns
     
     private boolean running = true; // Determines whether the game is "running" - i.e. whether actions happen in game (will be false when game ends)
     public boolean shouldreset = false; // Determines whether agents should reset their positions
@@ -81,6 +82,7 @@ public class MazeView extends JFrame implements KeyListener {
         params[1] = mazeinfo;
         params[2] = this;
         params[3] = player;
+        //params[4] = "topleft";
         
         // Create a runtime, container, and agent(s)
         Runtime rt = Runtime.instance(); 
@@ -89,7 +91,15 @@ public class MazeView extends JFrame implements KeyListener {
         try{
             AgentController ac = mainContainer.createNewAgent("enemy1", 
             "AgentLearning.Enemy", params); // With the params declared earlier
-            ac.start(); 
+            ac.start();
+            AgentController ac2 = mainContainer.createNewAgent("enemy2", "AgentLearning.Enemy", params);
+            ac2.start();
+            AgentController ac3 = mainContainer.createNewAgent("enemy3", "AgentLearning.Enemy", params);
+            ac3.start();
+            AgentController ac4 = mainContainer.createNewAgent("enemy4", "AgentLearning.Enemy", params);
+            ac4.start();
+            AgentController ac5 = mainContainer.createNewAgent("enemy5", "AgentLearning.Enemy", params);
+            ac5.start();
         } catch (StaleProxyException e){
             System.out.println("StaleProxyException caught...");
         }
