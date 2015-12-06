@@ -161,12 +161,12 @@ public class MazeMove {
             }
     }
     
-    
     public void PursuePlayer(int playerY, int playerX){
         // Head for the player
-        //System.out.println("Heading for player at y: " + playerY + " x: " + playerX + "!");
-        // Potentially we might get 'stuck', so have a check to see if we haven't moved for the past 3 iterations or something
+        // Potentially we might get 'stuck', so have a check to see if we haven't moved in the past iteration or something
         // otherwise just blindly rush towards the player?
+        int badCellX = -1; // initial "impossible" values for a bad cell (i.e. one where we get stuck)
+        int badCellY = -1;
         MoveInfo currentCell = movelist.Pop();
         if (movelist.length >= 0){
             onebehindmovelist.Push(currentCell.y, currentCell.x, currentCell.move);
@@ -190,32 +190,41 @@ public class MazeMove {
             --xcoord;
             move = 4;
         }
-        // Check if stuck...    REPLACE THIS WITH FINDBROKENWALLS LOGIC
-        // Or ustilise some kind of 'seen' structure... "definitely don't go there" BUT player is constantly moving...
-        if (currentCell.y == ycoord && currentCell.x == xcoord){
-            System.out.println("Haven't moved - might be stuck, moving away");
-            if (move == 3 && maze[currentCell.y][currentCell.x].southwall.isBroken()){
-                            System.out.println("South");
-                            ++ycoord;
-                            move = 3;
-                        }
-            else if (move == 1 && maze[currentCell.y][currentCell.x].northwall.isBroken()){
-                            System.out.println("North");
-                            --ycoord;
-                            move = 1;
-                        }
-            else if (move == 2 && maze[currentCell.y][currentCell.x].eastwall.isBroken()){
-                            System.out.println("East");
-                            ++xcoord;
-                            move = 2;
-                        }
-            else if (move == 4 && maze[currentCell.y][currentCell.x].westwall.isBroken()){
-                            System.out.println("West");
-                            --xcoord;
-                            move = 4;
-                        }
-        }
-        movelist.Push(ycoord, xcoord, move);
+        
+        movelist.Push(ycoord, xcoord, move); // always have to push moves...
+        
+        /*if (currentCell.y == ycoord && currentCell.x == xcoord){ // If we haven't moved
+            badCellY = ycoord;
+            badCellX = xcoord;
+            System.out.println("Haven't moved, bad cell is " + badCellX + ", " + badCellY);
+            currentCell = movelist.Pop();
+            xcoord = currentCell.x;
+            ycoord = currentCell.y;
+            move = currentCell.move;
+            // Move somewhere that isn't the bad cell
+            if (!((--ycoord == badCellY) && (xcoord == badCellX))){ // If we move North and it's NOT the bad cell
+                --ycoord; // Ok to move North
+                move = 1;
+            }
+            if (!((++ycoord == badCellY) && (xcoord == badCellX))){ // If we move South and it's NOT the bad cell
+                ++ycoord; // Ok to move South
+                move = 3;
+            }
+            if (!((ycoord == badCellY) && (++xcoord == badCellX))){ // If we move East and it's NOT the bad cell
+                ++xcoord; // Ok to move East
+                move = 2;
+            }
+            if (!((ycoord == badCellY) && (--xcoord == badCellX))){ // If we move West and it's NOT the bad cell
+                --xcoord; // Ok to move West
+                move = 4;
+            }
+            movelist.Push(ycoord, xcoord, move);
+        }     */
+    }
+    
+    // Implementation of the A* algorithm for pursuing the player.
+    public void AStarPursuePlayer(int playerY, int playerx){
+        
     }
     
     public void LookAhead(){
@@ -355,7 +364,7 @@ public class MazeMove {
     // so as to avoid having to constantly generate random numbers and potentially sit there until the timer runs out
     // because we keep generating a number that corresponds to an unbroken Wall (especially prevalent in dead-ends where there's only one way out)
     public int[] FindBrokenWalls(int ycoord, int xcoord){
-        Vector<Integer> vct = new Vector<Integer>(); // Vector to store the broke Wall reference ints (variable size so easier to do this than an array whilst "growing")
+        Vector<Integer> vct = new Vector<Integer>(); // Vector to store the broken Wall reference ints (variable size so easier to do this than an array whilst "growing")
         int brokenWalls[]; // Array to be copied into and returned at the end so we can access it normally elsewhere
         
         if (maze[ycoord][xcoord].northwall.isBroken()){

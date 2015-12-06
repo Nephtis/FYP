@@ -153,8 +153,9 @@ public class GenerateMaze {
             }
         }
         
+        // LEGACY (was changed to always be in the same place)
         // Pick one room along the edge of the maze and mark it as the exit
-        int random = randomGenerator.nextInt(4);   // 0 = top row, 1 = bottom row, 2 = leftmost col, 3 = rightmost col
+        /*int random = randomGenerator.nextInt(4);   // 0 = top row, 1 = bottom row, 2 = leftmost col, 3 = rightmost col
         int random2;
         int targetM = 0, targetN = 0;
         do {
@@ -175,8 +176,8 @@ public class GenerateMaze {
                 targetM = random2;
                 targetN = n-1;
             }
-        } while (targetM == startM && targetN == startN);   // Don't let the target be the start
-        PrimMazeInfo mazeinfo = new PrimMazeInfo(this.maze, startM, startN, targetM, targetN);
+        } while (targetM == startM && targetN == startN);   */ // Don't let the target be the start
+        PrimMazeInfo mazeinfo = new PrimMazeInfo(this.maze, startM, startN, 0, 9);
         MazeView view = new MazeView(mazeinfo);
     }
 }

@@ -27,8 +27,8 @@ import java.util.logging.Logger;
  */
 public class MazeView extends JFrame implements KeyListener {
 
-    private static final int WIDTH = 1000;
-    private static final int HEIGHT = 1000;
+    private static final int WIDTH = 900;
+    private static final int HEIGHT = 800;
     private static final int TOP = 30;
     private int width, height;
     private Cell[][] maze;
@@ -82,7 +82,6 @@ public class MazeView extends JFrame implements KeyListener {
         params[1] = mazeinfo;
         params[2] = this;
         params[3] = player;
-        //params[4] = "topleft";
         
         // Create a runtime, container, and agent(s)
         Runtime rt = Runtime.instance(); 
@@ -270,17 +269,10 @@ public class MazeView extends JFrame implements KeyListener {
         }
         
         // Check for 'stop conditions'
-//        if (current.y == mazeinfo.getTargetM() && current.x == mazeinfo.getTargetN()) { // Snake's coords are the exit coords
-//            snake.setDone();
-//            player.setDone();
-//            g.drawString("The prisoner got away...", 450, 700);
-//            g.drawString("Found exit at " + current.y + ", " + current.x, 480, 730);
-//        } else if (playercurrent.y == current.y && playercurrent.x == current.x) {  // Player's coords are Snake's coords
-//            snake.setDone();
-//            player.setDone();
-//            g.drawString("Caught the prisoner! ", 450, 700);
-//            g.drawString("Caught at " + current.y + ", " + current.x, 480, 730);
-//        }
+        if (playercurrent.y == mazeinfo.getTargetM() && playercurrent.x == mazeinfo.getTargetN()) { // Player's coords are the exit coords
+            player.setDone();
+            EndGame("win");
+        } 
     }
     
     // End the game
@@ -290,21 +282,21 @@ public class MazeView extends JFrame implements KeyListener {
             running = false; // "Stop" the game
             g.setFont(new Font("", 0, 60));
             g.setColor(Color.GREEN);
-            g.drawString("GAME", 940, 300);
-            g.drawString("OVER", 940, 350);
+            g.drawString("GAME", 740, 300);
+            g.drawString("OVER", 740, 350);
             g.setFont(new Font("", 0, 40));
-            g.drawString("You have", 940, 400);
-            g.drawString("escaped!", 940, 450);
+            g.drawString("You have", 740, 400);
+            g.drawString("escaped!", 740, 450);
             // Need to make sure agents terminate...
         } else if (cond.equalsIgnoreCase("lose")){ // Player was caught
             running = false;
             g.setFont(new Font("", 0, 60));
             g.setColor(Color.RED);
-            g.drawString("GAME", 940, 300);
-            g.drawString("OVER", 940, 350);
+            g.drawString("GAME", 740, 300);
+            g.drawString("OVER", 740, 350);
             g.setFont(new Font("", 0, 40));
-            g.drawString("You were", 940, 400);
-            g.drawString("caught!", 940, 450);
+            g.drawString("You were", 740, 400);
+            g.drawString("caught!", 740, 450);
         }
     }
     
@@ -312,30 +304,30 @@ public class MazeView extends JFrame implements KeyListener {
         // Paint a message on the screen to give info to the player (and help me debug...)
         Graphics g = getGraphics();
         g.setFont(new Font("", 0, 40));
-        g.drawString("Enemy status:", 940, 80);
+        g.drawString("Enemy status:", 740, 80);
         g.setFont(new Font("", 0, 60));
         switch (message){
             case "normal": 
-                g.drawImage(blank, 940, 100, 200, 200, null); // Paint over the previous message
+                g.drawImage(blank, 740, 100, 200, 200, null); // Paint over the previous message
                 g.setColor(Color.BLACK);
-                g.drawString("Normal", 940, 160);
+                g.drawString("Normal", 740, 160);
                 break;
             case "alert":
-                g.drawImage(blank, 940, 100, 200, 200, null);
+                g.drawImage(blank, 740, 100, 200, 200, null);
                 g.setColor(Color.RED);
-                g.drawString("ALERT", 940, 160);
+                g.drawString("ALERT", 740, 160);
                 g.setColor(Color.BLACK); // Reset the colour?
                 break;
             case "search":
-                g.drawImage(blank, 940, 100, 200, 200, null);
+                g.drawImage(blank, 740, 100, 200, 200, null);
                 g.setColor(Color.ORANGE);
-                g.drawString("Search", 940, 160);
+                g.drawString("Search", 740, 160);
                 g.setColor(Color.BLACK);
                 break;
             case "caution":
-                g.drawImage(blank, 940, 100, 200, 200, null);
+                g.drawImage(blank, 740, 100, 200, 200, null);
                 g.setColor(Color.YELLOW);
-                g.drawString("Caution", 940, 160);
+                g.drawString("Caution", 740, 160);
                 g.setColor(Color.BLACK);
                 break;
         }
@@ -346,86 +338,36 @@ public class MazeView extends JFrame implements KeyListener {
         
     }
 
+    // Only move when player releases a key (prevents them from holding it down and flying across the screen, also means I don't have to resort to using sleeps between key presses)
     @Override
-    public void keyPressed(KeyEvent e) {
+    public void keyReleased(KeyEvent e) {
         int keyCode = e.getKeyCode();
-//        boolean start = false;
-//        
-//        while (!(start)){
-//        if (keyCode == KeyEvent.VK_X){
-//                try {
-//                    paint(getGraphics());
-//                    Thread.sleep(500);
-//                    start = true;
-//                } catch(InterruptedException ex) {
-//                    Thread.currentThread().interrupt();
-//                }
-//            }
-//        }
         switch (keyCode) {
             case KeyEvent.VK_UP:    // Up arrow key
                 if (running) {
                     player.Move(1); // Move North
                 }
-//                if (snake.HasMoreMoves() && !snake.ExitFound()) {
-//                    snake.SearchForExit();
-                    paintPlayer(getGraphics());
-                // So the player can't hold down the arrow key and fly across the screen, force them to wait between inputs
-                    // BUT this leads to problems if you do hold it down, moves end up in a 'queue'...
-                try {
-                    Thread.sleep(150);
-                    break;
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(MazeView.class.getName()).log(Level.SEVERE, null, ex);
-                }
-//                }
+                paintPlayer(getGraphics());
                 break;
             case KeyEvent.VK_DOWN:
                 if (running) {
                     player.Move(3);
                 }
-//                if (snake.HasMoreMoves() && !snake.ExitFound()) {
-//                    snake.SearchForExit();
-                    paintPlayer(getGraphics());
-                    try {
-                    Thread.sleep(150);
-                    break;
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(MazeView.class.getName()).log(Level.SEVERE, null, ex);
-                }
-//                }
+                paintPlayer(getGraphics());
                 break;
             case KeyEvent.VK_LEFT:
                 if (running) {
                     player.Move(4);
                 }
-//                if (snake.HasMoreMoves() && !snake.ExitFound()) {
-//                    snake.SearchForExit();
-                    paintPlayer(getGraphics());
-                    try {
-                    Thread.sleep(150);
-                    break;
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(MazeView.class.getName()).log(Level.SEVERE, null, ex);
-                }
-//                }
+                paintPlayer(getGraphics());
                 break;
             case KeyEvent.VK_RIGHT:
                 if (running) {
                     player.Move(2);
                 }
-//                if (snake.HasMoreMoves() && !snake.ExitFound()) {
-//                    snake.SearchForExit();
-                    paintPlayer(getGraphics());
-                    try {
-                    Thread.sleep(150);
-                    break;
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(MazeView.class.getName()).log(Level.SEVERE, null, ex);
-                }
-//                }
+                paintPlayer(getGraphics());
                 break;
-                case KeyEvent.VK_R:    // "R" for reset
+            case KeyEvent.VK_R:    // "R" for reset
                 shouldreset = true; // If agent 'sees' this, reset pos
                 try {
                     Thread.sleep(1000); // Longer, so it should happen after agent processing cycle has finished
@@ -439,6 +381,6 @@ public class MazeView extends JFrame implements KeyListener {
     }
 
     @Override
-    public void keyReleased(KeyEvent e) {
+    public void keyPressed(KeyEvent e) {
     }
 }

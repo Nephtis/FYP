@@ -24,10 +24,21 @@ public class Enemy extends Agent{
     // we perform on tick
     int step = 0;
     private AID[] otherAgents; // list of other agents
+    private int[][] pursuitAlgorithmSuccess[][]; // 0 = blind rush, 1 = A*, 2 = etc...
+    /* 
+    Each time the agents go to pursue the player, they pick the one that has the highest success rate.
+    If two algorithms have the same success rate, pick the earlier one in the array.
+    The array will look something like this:
+    [0][1] // Blind rush has a score of 1
+    [1][3] // A* has a score of 3
+    [2][2] // Something else has a score of 2, etc.
+    So the agent will pick A* for its pursuit algorithm.
+    QUESTIONS: How do we pick a different one? e.g. if A* is more successful than blind rush, agents will always do that, even if there's a better solution in the next array row
+    Maybe have rate of success? e.g. (successes of a particular algorithm / total number of games)?
+    Have a "try" method, where agents will try each different algorithm at least once, and if it doesn't look promising, abandon it?
     
-    public Enemy(){
-        
-    }
+    */
+    
     
     // Agent initialization  
     protected void setup() {
@@ -108,8 +119,7 @@ public class Enemy extends Agent{
         public Movement(Agent a, long period) {
             super(a, period);
         }
-        
-        
+
         int i_alert = 0; // The 'counter' controlling duration (iterations) of alert mode 
         int i_search = 0;
         int i_caution = 0;
@@ -129,15 +139,15 @@ public class Enemy extends Agent{
             template.addServices(sd);
             try{
                 DFAgentDescription[] result = DFService.search(myAgent, template);
-                if (result != null){
+                /*if (result != null){
                     System.out.println("Found the following other agents:");
                 } else {
                     System.out.println("No other agents found");
-                }
+                }*/
                 otherAgents = new AID[result.length];
                 for (int i=0; i<result.length; i++){
                     otherAgents[i] = result[i].getName();
-                    System.out.println(otherAgents[i].getName());
+                    //System.out.println(otherAgents[i].getName());
                 }
             } catch (FIPAException fe){
                 fe.printStackTrace();
@@ -163,8 +173,8 @@ public class Enemy extends Agent{
                         }
                     }
                     
-                    moves.PatrolArea();// This doesn't seem to work since agent roams everywhere...
-                    System.out.println("Painting");
+                    moves.PatrolArea();// agent roams everywhere...
+                    //System.out.println("Painting");
                     view.paintEnemy(moves.GetLocation(), moves);
                     
                     if ((moves.getYCoord() == player.GetLocation().y) && (moves.getXCoord() == player.GetLocation().x)){ // for now...
