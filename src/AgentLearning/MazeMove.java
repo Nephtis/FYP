@@ -91,32 +91,32 @@ public class MazeMove {
                 if (movelist.length >= 0){ // only record previous moves if the Enemy has moved at least once (not counting the start 'move')...why does >= seem to work?
                     onebehindmovelist.Push(cell.y, cell.x, cell.move); // Push the unchanged values
                 }                  
-                    for (int i = 1; i < 5; i++) {
-                        int move = 0;
-                        int xcoord = cell.x;
-                        int ycoord = cell.y;
-                        // Where can we move?
-                        if ((i == MoveInfo.NORTH) && (maze[cell.y][cell.x].northwall.isBroken())) {
-                            --ycoord;   // Up
-                            move = 1;
-                        } else if ((i == MoveInfo.EAST) && (maze[cell.y][cell.x].eastwall.isBroken())) {
-                            ++xcoord;   // Right
-                            move = 2;
-                        } else if ((i == MoveInfo.SOUTH) && (maze[cell.y][cell.x].southwall.isBroken())) {
-                            ++ycoord;   // Down
-                            move = 3;
-                        } else if ((i == MoveInfo.WEST) && (maze[cell.y][cell.x].westwall.isBroken())) {
-                            --xcoord;   // Left
-                            move = 4;
-                        }
-                        // If it's a valid location and Enemy hasn't seen it:
-                        if (!(mazeinfo.maze[ycoord][xcoord].isExplored() && mazeinfo.seen[ycoord][xcoord])) {
-                            mazeinfo.seen[ycoord][xcoord] = true;
-                            movelist.Push(ycoord, xcoord, move);
-                        }
+                for (int i = 1; i < 5; i++) {
+                    int move = 0;
+                    int xcoord = cell.x;
+                    int ycoord = cell.y;
+                    // Where can we move?
+                    if ((i == MoveInfo.NORTH) && (maze[cell.y][cell.x].northwall.isBroken())) {
+                        --ycoord;   // Up
+                        move = 1;
+                    } else if ((i == MoveInfo.EAST) && (maze[cell.y][cell.x].eastwall.isBroken())) {
+                        ++xcoord;   // Right
+                        move = 2;
+                    } else if ((i == MoveInfo.SOUTH) && (maze[cell.y][cell.x].southwall.isBroken())) {
+                        ++ycoord;   // Down
+                        move = 3;
+                    } else if ((i == MoveInfo.WEST) && (maze[cell.y][cell.x].westwall.isBroken())) {
+                        --xcoord;   // Left
+                        move = 4;
+                    }
+                    // If it's a valid location and Enemy hasn't seen it:
+                    if (!(mazeinfo.maze[ycoord][xcoord].isExplored() && mazeinfo.seen[ycoord][xcoord])) {
+                        mazeinfo.seen[ycoord][xcoord] = true;
+                        movelist.Push(ycoord, xcoord, move);
                     }
                 }
-            }       
+            }
+        }       
     }
     
     // Move at random within a certain area

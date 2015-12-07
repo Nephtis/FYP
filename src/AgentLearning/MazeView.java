@@ -46,8 +46,10 @@ public class MazeView extends JFrame implements KeyListener {
     private int cy;
     public int enemyspawn = 0; // Deciding where the enemy spawns
     
-    private boolean running = true; // Determines whether the game is "running" - i.e. whether actions happen in game (will be false when game ends)
+    public boolean running = true; // Determines whether the game is "running" - i.e. whether actions happen in game (will be false when game ends)
     public boolean shouldreset = false; // Determines whether agents should reset their positions
+    public boolean alertmode = false;
+    public boolean searchmode = false;
     
     BufferedImage jeep = getImage("images/jeep.png"),
             snakeup = getImage("images/snakeup.png"),
@@ -58,6 +60,14 @@ public class MazeView extends JFrame implements KeyListener {
             guarddown = getImage("images/guarddown.png"),
             guardleft = getImage("images/guardleft.png"),
             guardright = getImage("images/guardright.png"),
+            guardupALERT = getImage("images/guardupALERT.png"),
+            guarddownALERT = getImage("images/guarddownALERT.png"),
+            guardleftALERT = getImage("images/guardleftALERT.png"),
+            guardrightALERT = getImage("images/guardrightALERT.png"),
+            guardupQUESTION = getImage("images/guardupQUESTION.png"),
+            guarddownQUESTION = getImage("images/guarddownQUESTION.png"),
+            guardleftQUESTION = getImage("images/guardleftQUESTION.png"),
+            guardrightQUESTION = getImage("images/guardrightQUESTION.png"),
             walltile = getImage("images/walltile.png"),
             //mazefloor = getImage("images/mazefloor.png"), // Not currently used
             blank = getImage ("images/blank.png");
@@ -220,15 +230,45 @@ public class MazeView extends JFrame implements KeyListener {
             x = (current.x * scalex) + 20;
             y = TOP + 20 + current.y * scaley;
             if (current.move == MoveInfo.NORTH) {
-                g.drawImage(guardup, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                if (alertmode){
+                    g.drawImage(guardupALERT, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                } else if (searchmode) {
+                    g.drawImage(guardupQUESTION, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                } else {
+                    g.drawImage(guardup, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                }
             } else if (current.move == MoveInfo.EAST) {
-                g.drawImage(guardright, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                if (alertmode){
+                    g.drawImage(guardrightALERT, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                } else if (searchmode) {
+                    g.drawImage(guardrightQUESTION, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                } else {
+                    g.drawImage(guardright, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                }
             } else if (current.move == MoveInfo.SOUTH) {
-                g.drawImage(guarddown, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                if (alertmode){
+                    g.drawImage(guarddownALERT, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                } else if (searchmode) {
+                    g.drawImage(guarddownQUESTION, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                } else {
+                    g.drawImage(guarddown, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                }
             } else if (current.move == MoveInfo.WEST) {
-                g.drawImage(guardleft, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                if (alertmode){
+                    g.drawImage(guardleftALERT, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                } else if (searchmode) {
+                    g.drawImage(guardleftQUESTION, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                } else {
+                    g.drawImage(guardleft, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                }
             } else if (current.move == MoveInfo.NONE) {
-                g.drawImage(guardup, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                if (alertmode){
+                    g.drawImage(guardupALERT, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                } else if (searchmode) {
+                    g.drawImage(guardupQUESTION, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                } else {
+                    g.drawImage(guardup, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                }
             }
         }
     }
@@ -275,7 +315,7 @@ public class MazeView extends JFrame implements KeyListener {
         } 
     }
     
-    // End the game
+    // End the game (and write output to file?)
     public final void EndGame(String cond){
         Graphics g = getGraphics();
         if (cond.equalsIgnoreCase("win")){ // Player has escaped
@@ -287,7 +327,7 @@ public class MazeView extends JFrame implements KeyListener {
             g.setFont(new Font("", 0, 40));
             g.drawString("You have", 740, 400);
             g.drawString("escaped!", 740, 450);
-            // Need to make sure agents terminate...
+            // Need to make sure agents terminate... Done inside Enemy class
         } else if (cond.equalsIgnoreCase("lose")){ // Player was caught
             running = false;
             g.setFont(new Font("", 0, 60));

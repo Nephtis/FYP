@@ -131,6 +131,9 @@ public class Enemy extends Agent{
         
         MoveInfo[] lineofsight = new MoveInfo[3];
         protected void onTick(){
+            if (!(view.running)){
+                doDelete();
+            }
             // Find other agents
             DFAgentDescription template = new DFAgentDescription();
             ServiceDescription sd = new ServiceDescription();
@@ -207,6 +210,7 @@ public class Enemy extends Agent{
                                     alertmsg.setReplyWith("inform"+System.currentTimeMillis());
                                     myAgent.send(alertmsg);
                                     System.out.println("Enemy: Player in my line of sight! Waiting 1 secs (so player can move away)");
+                                    view.alertmode = true;
                                     view.PrintGUIMessage("alert"); // Display the alert message on the GUI
                                     // Then send a message to other agents so they don't also do it (i.e. it only gets painted once)
                                     try {
@@ -228,6 +232,9 @@ public class Enemy extends Agent{
                     // (time in ms is still used at the top level of the behaviour, this just says do it for ONLY 20 'iterations')
                     while (i_alert < 20){
                         // Wait time between each move
+                        if (!(view.running)){
+                            doDelete();
+                        }
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException ex) {
@@ -242,7 +249,7 @@ public class Enemy extends Agent{
                             doDelete();
                             break;
                         } 
-                        moves.PursuePlayer(player.GetLocation().y, player.GetLocation().x);
+                        moves.MoveToCoords(player.GetLocation().y, player.GetLocation().x);
                         view.paintEnemy(moves.GetLocation(), moves);
                         i_alert++;   
                     }
@@ -254,11 +261,13 @@ public class Enemy extends Agent{
                 case 2:    
                     view.paintEnemy(moves.GetLocation(), moves);
                     //System.out.println("Searching for player...");
+                    view.alertmode = false;
+                    view.searchmode = true;
                     view.PrintGUIMessage("search");
                     while (i_search < 5){
                         // Wait time between each move
                         try {
-                            Thread.sleep(1000);
+                            Thread.sleep(750);
                         } catch (InterruptedException ex) {
                             Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -283,6 +292,7 @@ public class Enemy extends Agent{
                     break;
                     
                 case 3:
+                    view.searchmode = false;
                     System.out.println("Entering caution mode");
                     // Do caution stuff
                     //step = 0; // All clear, return to normal state (patrol)
