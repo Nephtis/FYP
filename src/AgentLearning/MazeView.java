@@ -51,6 +51,8 @@ public class MazeView extends JFrame implements KeyListener {
     public boolean alertmode = false;
     public boolean searchmode = false;
     
+    
+    
     BufferedImage jeep = getImage("images/jeep.png"),
             snakeup = getImage("images/snakeup.png"),
             snakedown = getImage("images/snakedown.png"),
@@ -97,6 +99,7 @@ public class MazeView extends JFrame implements KeyListener {
         Runtime rt = Runtime.instance(); 
         Profile p = new ProfileImpl(); 
         ContainerController mainContainer = rt.createMainContainer(p); 
+        
         try{
             AgentController ac = mainContainer.createNewAgent("enemy1", 
             "AgentLearning.Enemy", params); // With the params declared earlier
@@ -328,6 +331,12 @@ public class MazeView extends JFrame implements KeyListener {
             g.drawString("You have", 740, 400);
             g.drawString("escaped!", 740, 450);
             // Need to make sure agents terminate... Done inside Enemy class
+            // or:
+            /*try{
+                mainContainer.kill();
+            } catch (StaleProxyException e){
+            System.out.println("StaleProxyException caught...");
+            }*/
         } else if (cond.equalsIgnoreCase("lose")){ // Player was caught
             running = false;
             g.setFont(new Font("", 0, 60));

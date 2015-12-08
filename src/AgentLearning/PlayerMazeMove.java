@@ -49,7 +49,7 @@ public class PlayerMazeMove {
     }
 
     public void Move(int move) {
-        if (!done && !playermovelist.IsEmpty()) {
+        if (!playermovelist.IsEmpty()) {
             MoveInfo playercell = playermovelist.Pop();
             int xcoord = playercell.x;
             int ycoord = playercell.y;
@@ -68,6 +68,6 @@ public class PlayerMazeMove {
             }
             // And push the current values
             playermovelist.Push(ycoord, xcoord, move);
-            }            
+        }            
     }
 }

@@ -28,6 +28,13 @@ public class PrimMazeInfo {
             }
         }
     }
+    public void resetSeen(){
+        for (int j = 0; j < height; j++) {
+            for (int i = 0; i < width; i++) {
+                seen[j][i] = false;
+            }
+        }
+    }
     public void setStartM(int newM){
         startM = newM;
     }

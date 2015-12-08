@@ -45,7 +45,7 @@ public class Enemy extends Agent{
         System.out.println("Begin setup()");
         Object[] args = getArguments();  // [0] = maze, [1] = mazeinfo, [2] = maze view, [3] = player
         Cell[][] maze = (Cell[][]) args[0];
-        PrimMazeInfo mazeinfo = (PrimMazeInfo) args[1];
+        PrimMazeInfo mazeinfo = new PrimMazeInfo(maze,0,0,0,0);//(PrimMazeInfo) args[1];
         MazeView view = (MazeView) args[2];
         // Decide agent spawn
         switch (view.enemyspawn){
@@ -100,7 +100,7 @@ public class Enemy extends Agent{
         System.out.println("    Enemy "+getAID().getName()+" is ready.");
         
         // Add a TickerBehaviour that does things every (0.5) seconds
-        addBehaviour(new Movement(this, 1000));
+        addBehaviour(new Movement(this, 750));
 
         System.out.println("End of setup()");
     } // end of setup
@@ -125,7 +125,8 @@ public class Enemy extends Agent{
         int i_caution = 0;
         MessageTemplate mt; // The template to receive replies  
         Object[] args = getArguments();  // args [0] = maze, [1] = mazeinfo, [2] = mazeview, [3] = player
-        PrimMazeInfo mazeinfo = (PrimMazeInfo) args[1];
+        Cell[][] maze = (Cell[][]) args[0];
+        PrimMazeInfo mazeinfo = new PrimMazeInfo(maze,0,0,0,0);//(PrimMazeInfo) args[1];
         MazeView view = (MazeView) args[2];
         PlayerMazeMove player = (PlayerMazeMove) args[3];
         
@@ -164,7 +165,9 @@ public class Enemy extends Agent{
             
             switch(step){
                 case 0: // Patrol
+
                     // listen for alert messages from other agents
+                    // I think this HAS to come first to keep agents in sync...
                     ACLMessage reply = myAgent.receive(mt);
                     if (reply != null){
                         // Reply received, process it
@@ -176,10 +179,6 @@ public class Enemy extends Agent{
                         }
                     }
                     
-                    moves.PatrolArea();// agent roams everywhere...
-                    //System.out.println("Painting");
-                    view.paintEnemy(moves.GetLocation(), moves);
-                    
                     if ((moves.getYCoord() == player.GetLocation().y) && (moves.getXCoord() == player.GetLocation().x)){ // for now...
                         // 'captured' player (right now just 'if on top of player')
                         // Send capture message to other agents (including to HQ which will end the game)
@@ -190,6 +189,10 @@ public class Enemy extends Agent{
                         break;
                     } 
                     
+                    moves.PatrolArea();// agent roams everywhere...
+                    //System.out.println("Painting");
+                    view.paintEnemy(moves.GetLocation(), moves);
+
                     // Check if player is in line of sight
                     // (Currently greater than 1 Cell away i.e. not next to enemy, also think about move direction being deceptive i.e. facing wrong way)
                     lineofsight = moves.getLineOfSight();
@@ -214,7 +217,7 @@ public class Enemy extends Agent{
                                     view.PrintGUIMessage("alert"); // Display the alert message on the GUI
                                     // Then send a message to other agents so they don't also do it (i.e. it only gets painted once)
                                     try {
-                                        Thread.sleep(1000); // This has to be surrounded in a try/catch
+                                        Thread.sleep(500); // This has to be surrounded in a try/catch
                                     } catch (InterruptedException ex) {
                                         Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
                                     }
@@ -235,11 +238,6 @@ public class Enemy extends Agent{
                         if (!(view.running)){
                             doDelete();
                         }
-                        try {
-                            Thread.sleep(500);
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
-                        }
                         if ((moves.getYCoord() == player.GetLocation().y) && (moves.getXCoord() == player.GetLocation().x)){ // for now...
                             // 'captured' player (right now just 'if on top of player')
                             // Send capture message to other agents
@@ -248,12 +246,33 @@ public class Enemy extends Agent{
                             view.EndGame("lose"); // End the game with a "player lose" condition
                             doDelete();
                             break;
-                        } 
-                        moves.MoveToCoords(player.GetLocation().y, player.GetLocation().x);
+                        }
+                        try {
+                            //moves.MoveToCoords(player.GetLocation().y, player.GetLocation().x);
+                            moves.PursuePlayer(player.GetLocation().y, player.GetLocation().x);
+                            Thread.sleep(500);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        if (moves.getYCoord() == -1){
+                            System.out.println(getAID().getName()+": my Y is -1!");
+                        }
+                        if (moves.getXCoord() == -1){
+                            System.out.println(getAID().getName()+": my X is -1!");
+                        }
+                        if (player.GetLocation() == null) {
+                            System.out.println("PLAYER MOVE LIST IS EMPTY");
+                        }
+                        //System.out.println("Player is at Y: " + player.GetLocation().y + " X: " + player.GetLocation().x);
+                        
                         view.paintEnemy(moves.GetLocation(), moves);
                         i_alert++;   
                     }
                     i_alert = 0; // reset the alert counter
+                    
+                    // Clear the "seen" array
+                    mazeinfo.resetSeen();
+                    
                     // Send message to other agents (this way even if they're somehow out of sync they will all 'move on' together)
                     step = 2; // evasion/search
                     break;    
