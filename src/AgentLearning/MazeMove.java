@@ -27,6 +27,7 @@ public class MazeMove {
         movelist = new TrackInfo();
         onebehindmovelist = new TrackInfo();
         lineofsight = new TrackInfo();
+        senselist = new TrackInfo();
         done = false;
         movelist.Push(mazeinfo.getStartM(), mazeinfo.getStartN(), MoveInfo.NONE);  // Push start loc onto stack
         onebehindmovelist.Push(mazeinfo.getStartM(), mazeinfo.getStartN(), MoveInfo.NONE);
@@ -188,6 +189,8 @@ public class MazeMove {
         int xcoord = currentCell.x;
         int ycoord = currentCell.y;
         int move = currentCell.move;
+        //mazeinfo.seen[ycoord][xcoord] = true;
+        // For some reason, putting "seen" stuff here causes null exceptions... or does it?
         if (currentCell.y < playerY && maze[ycoord][xcoord].southwall.isBroken() && !(mazeinfo.seen[ycoord + 1][xcoord])){ // We are above player and can move down (SOUTH)
             ++ycoord;
             move = 3;
@@ -212,16 +215,17 @@ public class MazeMove {
             // This needs refining... NEED some sort of "heuristic" here (player pos?) or else enemy will just roam randomly
             // HOWEVER we may run into the problem of none of these conditions being executed if there are too many conditions...
             // one of them HAS to be executed or this block is mostly pointless
-            if (!(mazeinfo.seen[ycoord - 1][xcoord]) && maze[ycoord][xcoord].northwall.isBroken()) {
+            // Get best possible movement each time based on player pos, walls etc?
+            if (maze[ycoord][xcoord].northwall.isBroken() && !(mazeinfo.seen[ycoord - 1][xcoord])) { // Remember, can't "look ahead" (e.g. ycoord + 1) to a cell that's outside an edge (doesn't exist - array out of bounds exception), so check if wall is broken FIRST inside if logic
                 --ycoord;   // Up
                 move = 1;
-            } else if (!(mazeinfo.seen[ycoord][xcoord + 1]) && maze[ycoord][xcoord].eastwall.isBroken()) {
+            } else if (maze[ycoord][xcoord].eastwall.isBroken() && !(mazeinfo.seen[ycoord][xcoord + 1])) {
                 ++xcoord;   // Right
                 move = 2;
-            } else if (!(mazeinfo.seen[ycoord + 1][xcoord]) && maze[ycoord][xcoord].southwall.isBroken()) {
+            } else if (maze[ycoord][xcoord].southwall.isBroken() && !(mazeinfo.seen[ycoord + 1][xcoord])) {
                 ++ycoord;   // Down
                 move = 3;
-            } else if (!(mazeinfo.seen[ycoord][xcoord - 1]) && maze[ycoord][xcoord].westwall.isBroken()) {
+            } else if (maze[ycoord][xcoord].westwall.isBroken() && !(mazeinfo.seen[ycoord][xcoord - 1])) {
                 --xcoord;   // Left
                 move = 4;
             }
@@ -326,17 +330,48 @@ public class MazeMove {
         int xcoord = currentCell.x;
         int ycoord = currentCell.y;
         if (maze[ycoord][xcoord].northwall.isBroken()) { // If there is a clear path to the NORTH
-            senselist.Push(--ycoord, xcoord, 0); // Push that cell into our sense list
+            --ycoord;
+            senselist.Push(ycoord, xcoord, 0); // Push that cell into our sense list
         } // And so on...
         if (maze[ycoord][xcoord].southwall.isBroken()) {
-            senselist.Push(++ycoord, xcoord, 0);
+            ++ycoord;
+            senselist.Push(ycoord, xcoord, 0);
         }
         if (maze[ycoord][xcoord].eastwall.isBroken()) {
-            senselist.Push(ycoord, ++xcoord, 0);
+            ++xcoord;
+            senselist.Push(ycoord, xcoord, 0);
         }
         if (maze[ycoord][xcoord].westwall.isBroken()) {
-            senselist.Push(ycoord, --xcoord, 0);
+            --xcoord;
+            senselist.Push(ycoord, xcoord, 0);
         }
+    }
+    
+    // Turn and face the player's direction
+    public void FacePlayerDir(MoveInfo player){
+        MoveInfo currentCell = movelist.Peek();
+        if (currentCell.y < player.y){
+            System.out.println("Facing SOUTH");
+            movelist.Push(currentCell.y, currentCell.x, MoveInfo.SOUTH);
+        }
+        else if (currentCell.y > player.y){
+            System.out.println("Facing NORTH");
+            movelist.Push(currentCell.y, currentCell.x, MoveInfo.NORTH);
+        }
+        else if (currentCell.x < player.x){
+            System.out.println("Facing EAST");
+            movelist.Push(currentCell.y, currentCell.x, MoveInfo.EAST);
+        }
+        else if (currentCell.x > player.x){
+            System.out.println("Facing WEST");
+            movelist.Push(currentCell.y, currentCell.x, MoveInfo.WEST);
+        }
+    }
+    
+    // Turn and face a direction
+    public void FaceDirection(int dir){
+        MoveInfo currentCell = movelist.Peek();
+        movelist.Push(currentCell.y, currentCell.x, dir);
     }
     
     // NOT IMPLEMENTED

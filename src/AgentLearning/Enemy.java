@@ -96,18 +96,15 @@ public class Enemy extends Agent{
             fe.printStackTrace();
         }
         
-        // Print a welcome message     
-        System.out.println("    Enemy "+getAID().getName()+" is ready.");
-        
         // Add a TickerBehaviour that does things every (0.5) seconds
         addBehaviour(new Movement(this, 750));
 
-        System.out.println("End of setup()");
+        System.out.println("    "+getAID().getName()+": End of setup()");
     } // end of setup
     
      // Put agent clean-up operations here   
     protected void takeDown() {        
-        System.out.println("Agent "+getAID().getName()+" terminating.");  
+        System.out.println("    "+getAID().getName()+": Terminating.");  
         doDelete();
     }
     /**
@@ -131,6 +128,8 @@ public class Enemy extends Agent{
         PlayerMazeMove player = (PlayerMazeMove) args[3];
         
         MoveInfo[] lineofsight = new MoveInfo[3];
+        MoveInfo[] sensearea = new MoveInfo[4];
+        
         protected void onTick(){
             if (!(view.running)){
                 doDelete();
@@ -158,7 +157,7 @@ public class Enemy extends Agent{
             }
                 
             if (view.shouldreset){ // If agents need to reset
-                System.out.println("shouldreset is true, resetting agent pos...");
+                System.out.println("    "+getAID().getName()+": shouldreset is true, resetting agent pos...");
                 moves.ResetPosition(); // Reset pos back to start location
                 view.paintEnemy(moves.GetLocation(), moves);
             }
@@ -173,7 +172,7 @@ public class Enemy extends Agent{
                         // Reply received, process it
                         if (reply.getPerformative() == ACLMessage.INFORM){
                             // We're going to alert mode (ignore other message types)
-                            System.out.println("Other agent has spotted player, I'll go on alert too!");
+                            System.out.println("    "+getAID().getName()+": Other agent has spotted player, I'll go on alert too!");
                             step = 1;
                             break;
                         }
@@ -183,14 +182,29 @@ public class Enemy extends Agent{
                         // 'captured' player (right now just 'if on top of player')
                         // Send capture message to other agents (including to HQ which will end the game)
                         view.paintEnemy(moves.GetLocation(), moves); // re-paint so we're not left with an afterimage
-                        System.out.println("Player caught at x " + player.GetLocation().x + " y " + player.GetLocation().y);
+                        System.out.println("    "+getAID().getName()+": Player caught at x " + player.GetLocation().x + " y " + player.GetLocation().y);
                         view.EndGame("lose");
                         doDelete();
                         break;
                     } 
                     
+                    moves.SenseNearby();
+                    sensearea = moves.getSenseList();
+                    // Sense the player if they're nearby
+                    for (int i=0; i<sensearea.length; i++) {
+                        if (sensearea[i] != null) {
+                            if ((sensearea[i].y == player.GetLocation().y) && (sensearea[i].x == player.GetLocation().x)) {
+                                // SEARCH MODE - agent has sensed player is nearby but hasn't directly spotted them
+                                // Currently not sending a msg to other agents, just making this agent go to search mode
+                                System.out.println("    "+getAID().getName()+": I've sensed something nearby...");
+                                moves.FacePlayerDir(player.GetLocation());
+                                step = 2; // evasion/search
+                                break;    
+                            }
+                        }
+                    }
+                    
                     moves.PatrolArea();// agent roams everywhere...
-                    //System.out.println("Painting");
                     view.paintEnemy(moves.GetLocation(), moves);
 
                     // Check if player is in line of sight
@@ -212,7 +226,7 @@ public class Enemy extends Agent{
                                     alertmsg.setConversationId("alert mode");
                                     alertmsg.setReplyWith("inform"+System.currentTimeMillis());
                                     myAgent.send(alertmsg);
-                                    System.out.println("Enemy: Player in my line of sight! Waiting 1 secs (so player can move away)");
+                                    System.out.println("    "+getAID().getName()+": Player in my line of sight! Waiting 1 secs (so player can move away)");
                                     view.alertmode = true;
                                     view.PrintGUIMessage("alert"); // Display the alert message on the GUI
                                     // Then send a message to other agents so they don't also do it (i.e. it only gets painted once)
@@ -221,7 +235,7 @@ public class Enemy extends Agent{
                                     } catch (InterruptedException ex) {
                                         Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
                                     }
-                                    System.out.println("Enemy: Done waiting, go to alert mode!");
+                                    System.out.println("    "+getAID().getName()+": Done waiting, go to alert mode!");
                                     step = 1; // change to different 'action'
                                     break;
                                 }
@@ -232,6 +246,17 @@ public class Enemy extends Agent{
                 break;
                     
                 case 1:                   
+                    reply = myAgent.receive(mt);
+                    if (reply != null){
+                        // Reply received, process it
+                        if (reply.getPerformative() == ACLMessage.PROPOSE){
+                            // We're going to alert mode (ignore other message types)
+                            System.out.println("    "+getAID().getName()+": Other agent has lost player, I'll go to search mode");
+                            step = 2;
+                            break;
+                        }
+                    }
+                    
                     // (time in ms is still used at the top level of the behaviour, this just says do it for ONLY 20 'iterations')
                     while (i_alert < 20){
                         // Wait time between each move
@@ -242,7 +267,7 @@ public class Enemy extends Agent{
                             // 'captured' player (right now just 'if on top of player')
                             // Send capture message to other agents
                             view.paintEnemy(moves.GetLocation(), moves); // re-paint so we're not left with an afterimage
-                            System.out.println("Player caught.");
+                            System.out.println("    "+getAID().getName()+": Player caught.");
                             view.EndGame("lose"); // End the game with a "player lose" condition
                             doDelete();
                             break;
@@ -255,10 +280,10 @@ public class Enemy extends Agent{
                             Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         if (moves.getYCoord() == -1){
-                            System.out.println(getAID().getName()+": my Y is -1!");
+                            System.out.println("    "+getAID().getName()+": my Y is -1!");
                         }
                         if (moves.getXCoord() == -1){
-                            System.out.println(getAID().getName()+": my X is -1!");
+                            System.out.println("    "+getAID().getName()+": my X is -1!");
                         }
                         if (player.GetLocation() == null) {
                             System.out.println("PLAYER MOVE LIST IS EMPTY");
@@ -274,6 +299,13 @@ public class Enemy extends Agent{
                     mazeinfo.resetSeen();
                     
                     // Send message to other agents (this way even if they're somehow out of sync they will all 'move on' together)
+                    ACLMessage searchmsg = new ACLMessage(ACLMessage.PROPOSE);
+                    for (int j=0; j<otherAgents.length; j++){
+                        searchmsg.addReceiver(otherAgents[j]);
+                    }
+                    searchmsg.setConversationId("search mode");
+                    searchmsg.setReplyWith("propose"+System.currentTimeMillis());
+                    myAgent.send(searchmsg);
                     step = 2; // evasion/search
                     break;    
                     
@@ -312,7 +344,7 @@ public class Enemy extends Agent{
                     
                 case 3:
                     view.searchmode = false;
-                    System.out.println("Entering caution mode");
+                    System.out.println("    "+getAID().getName()+": Entering caution mode");
                     // Do caution stuff
                     //step = 0; // All clear, return to normal state (patrol)
                     step = 0;
