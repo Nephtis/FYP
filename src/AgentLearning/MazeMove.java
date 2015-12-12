@@ -235,10 +235,137 @@ public class MazeMove {
         movelist.Push(ycoord, xcoord, move);
     }
     
-    // NOT IMPLEMENTED
-    // Implementation of the A* algorithm for pursuing the player.
-    public void AStarPursuePlayer(int playerY, int playerx){
+    // DOESN'T WORK
+    // Implementation of the A* algorithm for pursuing the player. Decides the best cell to move to each time.
+    public void AStarPursuePlayer(int playerY, int playerX){
+        // Work out the cost of moving to whatever cells we have available
+        MoveInfo currentCell = movelist.Pop();
+        if (movelist.length >= 0){
+            onebehindmovelist.Push(currentCell.y, currentCell.x, currentCell.move);
+        }
+        int xcoord = currentCell.x;
+        int ycoord = currentCell.y;
+        int move = currentCell.move;
+        int costNORTH = 0;
+        int costEAST = 0;
+        int costSOUTH = 0;
+        int costWEST = 0;
+        int tempX = xcoord;
+        int tempY = ycoord;
+        int[] brokenWalls = new int[3];
+        int[] costs = new int[4];
+        int leastCostIndex = 0;
+        int dist = 0; // Distance between where we are and where player is
         
+        //while (ycoord != playerY && xcoord != playerX){ // Because we're working out the entire route each time?
+            if (maze[ycoord][xcoord].northwall.isBroken()){ // If we can move North, how much does North cost?
+                // If we move North, how many walls does that cell have?
+                tempY--;
+                dist = (tempY - playerY) + (tempX - playerX);
+                if (dist < 0){ // e.g. if the distance is the "other way around" and negative, we just want the actual number of cells between us and player
+                    dist = dist + (-dist * 2); // e.g. if dist is -3, we just want 3, so: -3 + (--3 * 2), -- turns into +, so this ends up as -3 + 6 = 3
+                }
+                costNORTH = costNORTH + dist; 
+                //brokenWalls = FindBrokenWalls(tempY, tempX);
+                //costNORTH = costNORTH + brokenWalls.length; // More walls = worse?
+                if (mazeinfo.seen[tempY][tempX]){ // If we've already been there...
+                    System.out.println("Already been there, but don't care");
+                    costNORTH = costNORTH + 9; // BUT doing it like this means they'll only be accurate the closer they are to you... see "grid" pic
+                }
+                tempY = ycoord; // Reset tempY
+            } else { 
+                costNORTH = 100; // Assign an abnormally large cost to show we don't want to go through the wall - otherwise when we skip a wall because it's not broken, the "cost" will remain at 0 (which is "less" than the others and so "better")
+            }
+            costs[0] = costNORTH; // Add to costs array
+            if (maze[ycoord][xcoord].eastwall.isBroken()){ // Not "else if" because we want to look at all potential directions and weigh their cost
+                tempX++;
+                dist = (tempX - playerX) + (tempX - playerX);
+                if (dist < 0){
+                    dist = dist + (-dist * 2);
+                }
+                costEAST = costEAST + dist; 
+                //brokenWalls = FindBrokenWalls(tempY, tempX);
+                //costEAST = costEAST + brokenWalls.length;
+                if (mazeinfo.seen[tempY][tempX]){
+                    System.out.println("Already been there, but don't care");
+                    costEAST = costEAST + 9;
+                }
+                tempX = xcoord;
+            } else { 
+                costEAST = 100;
+            }
+            costs[1] = costEAST;
+            if (maze[ycoord][xcoord].southwall.isBroken()){
+                tempY++;
+                dist = (tempY - playerY) + (tempX - playerX);
+                if (dist < 0){
+                    dist = dist + (-dist * 2);
+                }
+                costSOUTH = costSOUTH + dist; 
+                //brokenWalls = FindBrokenWalls(tempY, tempX);
+                //costSOUTH = costSOUTH + brokenWalls.length;
+                if (mazeinfo.seen[tempY][tempX]){
+                    System.out.println("Already been there, but don't care");
+                    costSOUTH = costSOUTH + 9;
+                }
+                tempY = ycoord;
+            } else { 
+                costSOUTH = 100;
+            }
+            costs[2] = costSOUTH;
+            if (maze[ycoord][xcoord].westwall.isBroken()){
+                tempX--;
+                dist = (tempX - playerX) + (tempX - playerX);
+                if (dist < 0){
+                    dist = dist + (-dist * 2);
+                }
+                costWEST = costWEST + dist; 
+               // brokenWalls = FindBrokenWalls(tempY, tempX);
+                //costWEST = costWEST + brokenWalls.length;
+                if (mazeinfo.seen[tempY][tempX]){
+                    System.out.println("Already been there, but don't care");
+                    costWEST = costWEST + 9;
+                }
+                tempX = xcoord;
+            } else { 
+                costWEST = 100;
+            }
+            costs[3] = costWEST;
+            // Now find the least cost direction (if two or more have the same cost then just pick the first one)
+            int leastCost = costs[0];
+            for (int i=0; i<costs.length; i++){
+                if (costs[i] < leastCost){
+                    System.out.println("Got inside for-if");
+                    leastCost = costs[i];
+                    leastCostIndex = i;
+                }
+            }
+            // And move in that direction
+            if (leastCostIndex == 0){ // North has the least cost
+                System.out.println("Trying to move North");
+                --ycoord;
+                move = 1;
+                movelist.Push(ycoord, xcoord, move);
+            } else if (leastCostIndex == 1){ // East has the least cost
+                System.out.println("Trying to move East");
+                ++xcoord;
+                move = 2;
+                movelist.Push(ycoord, xcoord, move);
+            } else if (leastCostIndex == 2){ // South has the least cost
+                System.out.println("Trying to move South");
+                ++ycoord;
+                move = 3;
+                movelist.Push(ycoord, xcoord, move);
+            } else if (leastCostIndex == 3){ // West has the least cost
+                System.out.println("Trying to move West");
+                --xcoord;
+                move = 4;
+                movelist.Push(ycoord, xcoord, move);
+            } else {
+                System.out.println("ERROR"); // Just in case...
+            }
+            mazeinfo.seen[ycoord][xcoord] = true;
+        //}
     }
     
     public void LookAhead(){

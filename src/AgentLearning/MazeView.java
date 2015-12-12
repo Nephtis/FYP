@@ -51,7 +51,8 @@ public class MazeView extends JFrame implements KeyListener {
     public boolean alertmode = false;
     public boolean searchmode = false;
     
-    
+    private long starttime;
+    private long endtime;
     
     BufferedImage jeep = getImage("images/jeep.png"),
             snakeup = getImage("images/snakeup.png"),
@@ -128,6 +129,8 @@ public class MazeView extends JFrame implements KeyListener {
         // Draw the initial objects
         paintPlayer(getGraphics());
         PrintGUIMessage("normal");
+        
+        starttime = System.currentTimeMillis();
 }
 
     private BufferedImage getImage(String filename) {
@@ -321,6 +324,10 @@ public class MazeView extends JFrame implements KeyListener {
     // End the game (and write output to file?)
     public final void EndGame(String cond){
         Graphics g = getGraphics();
+        endtime = System.currentTimeMillis();
+        long totaltime = endtime - starttime;
+        long seconds = (totaltime / 1000) % 60;
+        long minutes = ((totaltime / 1000) - seconds) / 60;
         if (cond.equalsIgnoreCase("win")){ // Player has escaped
             running = false; // "Stop" the game
             g.setFont(new Font("", 0, 60));
@@ -330,6 +337,9 @@ public class MazeView extends JFrame implements KeyListener {
             g.setFont(new Font("", 0, 40));
             g.drawString("You have", 740, 400);
             g.drawString("escaped!", 740, 450);
+            g.setFont(new Font("", 0, 20));
+            g.drawString("Total time:", 740, 550);
+            g.drawString(String.valueOf(minutes) + " minutes " + String.valueOf(seconds) + " seconds", 740, 600);
             // Need to make sure agents terminate... Done inside Enemy class
             // or:
             /*try{
@@ -346,6 +356,9 @@ public class MazeView extends JFrame implements KeyListener {
             g.setFont(new Font("", 0, 40));
             g.drawString("You were", 740, 400);
             g.drawString("caught!", 740, 450);
+            g.setFont(new Font("", 0, 20));
+            g.drawString("Total time:", 740, 550);
+            g.drawString(String.valueOf(minutes) + " minutes " + String.valueOf(seconds) + " seconds", 740, 600);
         }
     }
     

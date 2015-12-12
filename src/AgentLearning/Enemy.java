@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  * @author Dave
  */
 public class Enemy extends Agent{
-    public MazeMove moves; // unique list of moves that this agent has done
+    private MazeMove moves; // unique list of moves that this agent has done
     // Which step we're at will determine what action 
     // we perform on tick
     int step = 0;
@@ -274,7 +274,8 @@ public class Enemy extends Agent{
                         }
                         try {
                             //moves.MoveToCoords(player.GetLocation().y, player.GetLocation().x);
-                            moves.PursuePlayer(player.GetLocation().y, player.GetLocation().x);
+                            //moves.PursuePlayer(player.GetLocation().y, player.GetLocation().x);
+                            moves.AStarPursuePlayer(player.GetLocation().y, player.GetLocation().x);
                             Thread.sleep(500);
                         } catch (InterruptedException ex) {
                             Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
@@ -325,6 +326,30 @@ public class Enemy extends Agent{
                         //moves.SearchArea(y, x, m, n);
                         view.paintEnemy(moves.GetLocation(), moves);
                         i_search++;
+                        
+                        moves.SenseNearby();
+                        sensearea = moves.getSenseList();
+                        // Sense the player if they're nearby
+                        for (int i=0; i<sensearea.length; i++) {
+                            if (sensearea[i] != null) {
+                                if ((sensearea[i].y == player.GetLocation().y) && (sensearea[i].x == player.GetLocation().x)) {
+                                    // This time, if you get sensed, this will trigger an alert since guards are on edge
+                                    ACLMessage alertmsg = new ACLMessage(ACLMessage.INFORM);
+                                    for (int j=0; j<otherAgents.length; j++){
+                                        alertmsg.addReceiver(otherAgents[j]);
+                                    }
+                                    alertmsg.setConversationId("alert mode");
+                                    alertmsg.setReplyWith("inform"+System.currentTimeMillis());
+                                    myAgent.send(alertmsg);
+                                    System.out.println("    "+getAID().getName()+": Sensed player! Going to alert mode!");
+                                    view.alertmode = true;
+                                    view.PrintGUIMessage("alert"); // Display the alert message on the GUI
+                                    step = 1;
+                                    break;    
+                                }
+                            }
+                        }
+                        
                         if ((moves.getYCoord() == player.GetLocation().y) && (moves.getXCoord() == player.GetLocation().x)){ // for now...
                             //System.out.println("Player spotted while searching, waiting 1 secs (so player can move away)"); // for now
                             view.PrintGUIMessage("alert");
