@@ -7,6 +7,7 @@ package AgentLearning;
 public class PrimMazeInfo {
 
     public boolean seen[][];
+    public int costs[][];
     private int width, height;
     private int startM, startN;
     private int targetM, targetN;
@@ -22,9 +23,15 @@ public class PrimMazeInfo {
         height = maze.length;
         width = maze[0].length;
         seen = new boolean[height][width];
+        costs = new int[height][width];
         for (int j = 0; j < height; j++) {
             for (int i = 0; i < width; i++) {
                 seen[j][i] = false;
+            }
+        }
+        for (int j = 0; j < height; j++) {
+            for (int i = 0; i < width; i++) {
+                costs[j][i] = 0;
             }
         }
     }
@@ -32,6 +39,13 @@ public class PrimMazeInfo {
         for (int j = 0; j < height; j++) {
             for (int i = 0; i < width; i++) {
                 seen[j][i] = false;
+            }
+        }
+    }
+    public void resetCosts(){
+        for (int j = 0; j < height; j++) {
+            for (int i = 0; i < width; i++) {
+                costs[j][i] = 0;
             }
         }
     }

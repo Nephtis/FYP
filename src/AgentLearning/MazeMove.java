@@ -18,6 +18,8 @@ public class MazeMove {
     private Cell[][] maze;
     private PrimMazeInfo mazeinfo;
     private boolean done;
+    
+    //public int seenCost = 0; // test
 
     public MazeMove(Cell[][] maze, PrimMazeInfo mazeinfo) {
         System.out.println("mazemove, start m is " + mazeinfo.getStartM() + " start n is " + mazeinfo.getStartN());
@@ -235,7 +237,7 @@ public class MazeMove {
         movelist.Push(ycoord, xcoord, move);
     }
     
-    // DOESN'T WORK
+    // DOESN'T WORK FULLY
     // Implementation of the A* algorithm for pursuing the player. Decides the best cell to move to each time.
     public void AStarPursuePlayer(int playerY, int playerX){
         // Work out the cost of moving to whatever cells we have available
@@ -257,7 +259,12 @@ public class MazeMove {
         int leastCostIndex = 0;
         int dist = 0; // Distance between where we are and where player is
         
-        //while (ycoord != playerY && xcoord != playerX){ // Because we're working out the entire route each time?
+        if (mazeinfo.seen[ycoord][xcoord]){ // Only increase the cost of a seen cell ONCE...
+            // and to increase cost of where agent is NOW (to check next time) instead of increasing 
+            // cost of potential locs and getting stuck because you'll trap yourself with higher cost potential locs
+            mazeinfo.costs[ycoord][xcoord]++;
+        }
+        //while (ycoord != playerY && xcoord != playerX){ // Work out the entire route each time?
             if (maze[ycoord][xcoord].northwall.isBroken()){ // If we can move North, how much does North cost?
                 // If we move North, how many walls does that cell have?
                 tempY--;
@@ -265,13 +272,13 @@ public class MazeMove {
                 if (dist < 0){ // e.g. if the distance is the "other way around" and negative, we just want the actual number of cells between us and player
                     dist = dist + (-dist * 2); // e.g. if dist is -3, we just want 3, so: -3 + (--3 * 2), -- turns into +, so this ends up as -3 + 6 = 3
                 }
-                costNORTH = costNORTH + dist; 
+                costNORTH = dist; 
                 //brokenWalls = FindBrokenWalls(tempY, tempX);
                 //costNORTH = costNORTH + brokenWalls.length; // More walls = worse?
-                if (mazeinfo.seen[tempY][tempX]){ // If we've already been there...
-                    System.out.println("Already been there, but don't care");
-                    costNORTH = costNORTH + 9; // BUT doing it like this means they'll only be accurate the closer they are to you... see "grid" pic
+                if (mazeinfo.seen[tempY][xcoord]){
+                    costNORTH = costNORTH + mazeinfo.costs[tempY][xcoord];
                 }
+                System.out.println("North cost is " + costNORTH);
                 tempY = ycoord; // Reset tempY
             } else { 
                 costNORTH = 100; // Assign an abnormally large cost to show we don't want to go through the wall - otherwise when we skip a wall because it's not broken, the "cost" will remain at 0 (which is "less" than the others and so "better")
@@ -279,17 +286,17 @@ public class MazeMove {
             costs[0] = costNORTH; // Add to costs array
             if (maze[ycoord][xcoord].eastwall.isBroken()){ // Not "else if" because we want to look at all potential directions and weigh their cost
                 tempX++;
-                dist = (tempX - playerX) + (tempX - playerX);
+                dist = (tempX - playerX) + (tempY - playerY);
                 if (dist < 0){
                     dist = dist + (-dist * 2);
                 }
-                costEAST = costEAST + dist; 
+                costEAST = dist; 
                 //brokenWalls = FindBrokenWalls(tempY, tempX);
                 //costEAST = costEAST + brokenWalls.length;
-                if (mazeinfo.seen[tempY][tempX]){
-                    System.out.println("Already been there, but don't care");
-                    costEAST = costEAST + 9;
+                if (mazeinfo.seen[ycoord][tempX]){
+                    costEAST = costEAST + mazeinfo.costs[ycoord][tempX];
                 }
+                System.out.println("East cost is " + costEAST);
                 tempX = xcoord;
             } else { 
                 costEAST = 100;
@@ -301,13 +308,13 @@ public class MazeMove {
                 if (dist < 0){
                     dist = dist + (-dist * 2);
                 }
-                costSOUTH = costSOUTH + dist; 
+                costSOUTH = dist; 
                 //brokenWalls = FindBrokenWalls(tempY, tempX);
                 //costSOUTH = costSOUTH + brokenWalls.length;
-                if (mazeinfo.seen[tempY][tempX]){
-                    System.out.println("Already been there, but don't care");
-                    costSOUTH = costSOUTH + 9;
+                if (mazeinfo.seen[tempY][xcoord]){
+                    costSOUTH = costSOUTH + mazeinfo.costs[tempY][xcoord];
                 }
+                System.out.println("South cost is " + costSOUTH);
                 tempY = ycoord;
             } else { 
                 costSOUTH = 100;
@@ -315,17 +322,17 @@ public class MazeMove {
             costs[2] = costSOUTH;
             if (maze[ycoord][xcoord].westwall.isBroken()){
                 tempX--;
-                dist = (tempX - playerX) + (tempX - playerX);
+                dist = (tempX - playerX) + (tempY - playerY);
                 if (dist < 0){
                     dist = dist + (-dist * 2);
                 }
-                costWEST = costWEST + dist; 
-               // brokenWalls = FindBrokenWalls(tempY, tempX);
+                costWEST = dist; 
+                //brokenWalls = FindBrokenWalls(tempY, tempX);
                 //costWEST = costWEST + brokenWalls.length;
-                if (mazeinfo.seen[tempY][tempX]){
-                    System.out.println("Already been there, but don't care");
-                    costWEST = costWEST + 9;
+                if (mazeinfo.seen[ycoord][tempX]){
+                    costWEST = costWEST + mazeinfo.costs[ycoord][tempX];
                 }
+                System.out.println("West cost is " + costWEST);
                 tempX = xcoord;
             } else { 
                 costWEST = 100;
@@ -481,15 +488,15 @@ public class MazeMove {
             System.out.println("Facing SOUTH");
             movelist.Push(currentCell.y, currentCell.x, MoveInfo.SOUTH);
         }
-        else if (currentCell.y > player.y){
+        if (currentCell.y > player.y){
             System.out.println("Facing NORTH");
             movelist.Push(currentCell.y, currentCell.x, MoveInfo.NORTH);
         }
-        else if (currentCell.x < player.x){
+        if (currentCell.x < player.x){
             System.out.println("Facing EAST");
             movelist.Push(currentCell.y, currentCell.x, MoveInfo.EAST);
         }
-        else if (currentCell.x > player.x){
+        if (currentCell.x > player.x){
             System.out.println("Facing WEST");
             movelist.Push(currentCell.y, currentCell.x, MoveInfo.WEST);
         }
@@ -512,46 +519,6 @@ public class MazeMove {
         // Add 2 to each dir of current pos, and search ALL CELLS within that area
         // Use the 'seen' array
         // If we can't move anywhere (i.e. we're surrounded either by walls or the next cell is out of range), then backtrack
-    }
-    
-    // NOT IMPLEMENTED
-    // Find a radius that the agent can patrol
-    // e.g. if they spawn in a corner or in the middle somewhere, make sure they still have a radius of size x to patrol
-    public void FindRadius(){ // but this will have to return something... array of size 4, holding coords?
-        MoveInfo currentCell = movelist.Peek(); // Peek because we're not actually moving
-        // For simplicity, we'll say each agent patrols an area of 4x4 cells. So we need to find a total area (or radius) of size 16 cells for each agent
-        // (note these can overlap)
-        
-        // currentCell should be the start pos for patrolling, and perhaps a smaller area for searching
-        
-        // Find the closest edges on two sides of either (up, left) or (down, right)
-        // We want to generate an area in the opposite direction to those edges to maximize the size
-        // Look up
-        int xcoord = currentCell.x;
-        int ycoord = currentCell.y;
-        int northval = 0; // Keeps track of how 'big' the 4 values are - at the end, we want the biggest 2 to be the direction we make our area
-        int eastval = 0;
-        int southval = 0;
-        int westval = 0;
-        // However, if they're all the same size (e.g. if an agent spawns in the middle), just generate randomly either 1 (down and right) or 2 (up and left) by default
-        if (!(maze[ycoord][xcoord].northwall.isEdge())) { // If there is a clear path (i.e. not an edge) to the NORTH
-            --ycoord;   // We can look up
-            northval++;
-            if (!(maze[ycoord][xcoord].northwall.isEdge())){ // Can we look 'further' up?       
-                --ycoord; 
-                northval++;
-                if (!(maze[ycoord][xcoord].northwall.isEdge())){ // Once more...
-                    --ycoord; 
-                    northval++;
-                    if (!(maze[ycoord][xcoord].northwall.isEdge())){ // Once more...
-                        --ycoord; 
-                        northval++;
-                    }
-                }
-            }
-        }
-        // Pick the size and direction of the patro area
-        
     }
     
     // Find what Walls are broken (i.e. traversable) in our current position

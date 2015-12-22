@@ -105,14 +105,14 @@ public class MazeView extends JFrame implements KeyListener {
             AgentController ac = mainContainer.createNewAgent("enemy1", 
             "AgentLearning.Enemy", params); // With the params declared earlier
             ac.start();
-            AgentController ac2 = mainContainer.createNewAgent("enemy2", "AgentLearning.Enemy", params);
+            /*AgentController ac2 = mainContainer.createNewAgent("enemy2", "AgentLearning.Enemy", params);
             ac2.start();
             AgentController ac3 = mainContainer.createNewAgent("enemy3", "AgentLearning.Enemy", params);
             ac3.start();
             AgentController ac4 = mainContainer.createNewAgent("enemy4", "AgentLearning.Enemy", params);
             ac4.start();
             AgentController ac5 = mainContainer.createNewAgent("enemy5", "AgentLearning.Enemy", params);
-            ac5.start();
+            ac5.start();*/
         } catch (StaleProxyException e){
             System.out.println("StaleProxyException caught...");
         }

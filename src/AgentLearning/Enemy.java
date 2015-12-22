@@ -298,6 +298,7 @@ public class Enemy extends Agent{
                     
                     // Clear the "seen" array
                     mazeinfo.resetSeen();
+                    mazeinfo.resetCosts();
                     
                     // Send message to other agents (this way even if they're somehow out of sync they will all 'move on' together)
                     ACLMessage searchmsg = new ACLMessage(ACLMessage.PROPOSE);
