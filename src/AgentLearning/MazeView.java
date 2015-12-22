@@ -37,6 +37,7 @@ public class MazeView extends JFrame implements KeyListener {
     private MoveInfo playercurrent;
     private MoveInfo playerprevious;
     private Object[] params = new Object[4];
+    
     // For maze scaling:
     private int scalex;
     private int scaley;

@@ -12,6 +12,8 @@ public class PrimMazeInfo {
     private int startM, startN;
     private int targetM, targetN;
     public Cell[][] maze;
+    
+    public int patrolcosts[][];
 
     // Constructor
     public PrimMazeInfo(Cell[][] maze, int startM, int startN, int targetM, int targetN) {
@@ -24,6 +26,7 @@ public class PrimMazeInfo {
         width = maze[0].length;
         seen = new boolean[height][width];
         costs = new int[height][width];
+        patrolcosts = new int[height][width];
         for (int j = 0; j < height; j++) {
             for (int i = 0; i < width; i++) {
                 seen[j][i] = false;
@@ -32,6 +35,11 @@ public class PrimMazeInfo {
         for (int j = 0; j < height; j++) {
             for (int i = 0; i < width; i++) {
                 costs[j][i] = 0;
+            }
+        }
+        for (int j = 0; j < height; j++) {
+            for (int i = 0; i < width; i++) {
+                patrolcosts[j][i] = 0;
             }
         }
     }
@@ -46,6 +54,13 @@ public class PrimMazeInfo {
         for (int j = 0; j < height; j++) {
             for (int i = 0; i < width; i++) {
                 costs[j][i] = 0;
+            }
+        }
+    }
+    public void resetPatrolCosts(){
+        for (int j = 0; j < height; j++) {
+            for (int i = 0; i < width; i++) {
+                patrolcosts[j][i] = 0;
             }
         }
     }

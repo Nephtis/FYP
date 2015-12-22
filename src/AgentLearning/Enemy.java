@@ -63,9 +63,9 @@ public class Enemy extends Agent{
                 view.enemyspawn++;
                 break;
             case (2):
-                System.out.println("Spawning bottom left");
+                System.out.println("Spawning bottom left (ish)");
                 mazeinfo.setStartM(8);
-                mazeinfo.setStartN(1);
+                mazeinfo.setStartN(3);
                 view.enemyspawn++;
                 break;
             case (3):
@@ -96,7 +96,7 @@ public class Enemy extends Agent{
             fe.printStackTrace();
         }
         
-        // Add a TickerBehaviour that does things every (0.5) seconds
+        // Add a TickerBehaviour that does things every (0.75) seconds
         addBehaviour(new Movement(this, 750));
 
         System.out.println("    "+getAID().getName()+": End of setup()");
@@ -123,7 +123,8 @@ public class Enemy extends Agent{
         MessageTemplate mt; // The template to receive replies  
         Object[] args = getArguments();  // args [0] = maze, [1] = mazeinfo, [2] = mazeview, [3] = player
         Cell[][] maze = (Cell[][]) args[0];
-        PrimMazeInfo mazeinfo = new PrimMazeInfo(maze,0,0,0,0);//(PrimMazeInfo) args[1];
+        PrimMazeInfo mazeinfo = new PrimMazeInfo(maze,0,0,0,0); // Unique to this agent (params are all 0 because agent doesn't need to know player's "target" coords)
+        PrimMazeInfo mastermazeinfo = (PrimMazeInfo) args[1]; // Shared by all agents
         MazeView view = (MazeView) args[2];
         PlayerMazeMove player = (PlayerMazeMove) args[3];
         
@@ -204,7 +205,7 @@ public class Enemy extends Agent{
                         }
                     }
                     
-                    moves.PatrolArea();// agent roams everywhere...
+                    moves.PatrolArea(mastermazeinfo);// agent roams everywhere...
                     view.paintEnemy(moves.GetLocation(), moves);
 
                     // Check if player is in line of sight
