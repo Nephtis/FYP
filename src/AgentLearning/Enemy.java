@@ -318,14 +318,15 @@ public class Enemy extends Agent{
                     view.alertmode = false;
                     view.searchmode = true;
                     view.PrintGUIMessage("search");
-                    while (i_search < 5){
+                    while (i_search < 20){
                         // Wait time between each move
                         try {
                             Thread.sleep(750);
+                            moves.SearchArea(moves.getXCoord(), moves.getYCoord());
                         } catch (InterruptedException ex) {
                             Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                        //moves.SearchArea(y, x, m, n);
+                        
                         view.paintEnemy(moves.GetLocation(), moves);
                         i_search++;
                         
@@ -352,20 +353,45 @@ public class Enemy extends Agent{
                             }
                         }
                         
-                        if ((moves.getYCoord() == player.GetLocation().y) && (moves.getXCoord() == player.GetLocation().x)){ // for now...
-                            //System.out.println("Player spotted while searching, waiting 1 secs (so player can move away)"); // for now
-                            view.PrintGUIMessage("alert");
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException ex) {
-                                Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                            //System.out.println("Done waiting, go to alert mode!");
+                        if ((moves.getYCoord() == player.GetLocation().y) && (moves.getXCoord() == player.GetLocation().x)){
                             view.paintEnemy(moves.GetLocation(), moves);
-                            step = 1;
+                            System.out.println("    "+getAID().getName()+": Player caught at x " + player.GetLocation().x + " y " + player.GetLocation().y);
+                            view.EndGame("lose");
+                            doDelete();
                             break;
                         }
+                        
+                        lineofsight = moves.getLineOfSight();
+                        for (int i=0; i<lineofsight.length; i++) {
+                            if (lineofsight[i] != null) {
+                                if ((lineofsight[i].y == player.GetLocation().y) && (lineofsight[i].x == player.GetLocation().x)) {
+                                    // ALERT MODE
+                                    // Send alert message to other agents
+                                    ACLMessage alertmsg = new ACLMessage(ACLMessage.INFORM);
+                                    for (int j=0; j<otherAgents.length; j++){
+                                        alertmsg.addReceiver(otherAgents[j]);
+                                    }
+                                    alertmsg.setConversationId("alert mode");
+                                    alertmsg.setReplyWith("inform"+System.currentTimeMillis());
+                                    myAgent.send(alertmsg);
+                                    System.out.println("    "+getAID().getName()+": Player in my line of sight! Waiting 1 secs (so player can move away)");
+                                    view.alertmode = true;
+                                    view.PrintGUIMessage("alert"); // Display the alert message on the GUI
+                                    try {
+                                        Thread.sleep(500); // This has to be surrounded in a try/catch
+                                    } catch (InterruptedException ex) {
+                                        Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
+                                    System.out.println("    "+getAID().getName()+": Done waiting, go to alert mode!");
+                                    step = 1; // change to different 'action'
+                                    break;
+                                }
+                            }
+                        }
                     }
+                    i_search = 0;
+                    mazeinfo.resetSeen();
+                    mazeinfo.resetCosts();
                     step = 3;
                     break;
                     
