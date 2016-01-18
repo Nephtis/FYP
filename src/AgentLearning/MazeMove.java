@@ -573,7 +573,7 @@ public class MazeMove {
         movelist.Push(currentCell.y, currentCell.x, dir);
     }
     
-    // NOT IMPLEMENTED
+    // NOT IMPLEMENTED FULLY?
     public void SearchArea(int startX, int startY){
         // y, x, m and n will be calculated outside depending on Enemy's current location, i.e. search within a 1-2 block radius of their current pos
         // covering EVERY cell,or just hang around there
