@@ -14,7 +14,7 @@ import java.awt.image.BufferedImage;
 import jade.core.Runtime; 
 import jade.core.Profile; 
 import jade.core.ProfileImpl; 
-import jade.util.leap.Properties;
+//import jade.util.leap.Properties;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
@@ -51,19 +51,23 @@ public class MazeView extends JFrame implements KeyListener {
     public boolean shouldreset = false; // Determines whether agents should reset their positions
     public boolean alertmode = false;
     public boolean searchmode = false;
+    public boolean cautionmode = false;
     
     private long starttime;
     private long endtime;
     
     BufferedImage jeep = getImage("images/jeep.png"),
+            // Player
             snakeup = getImage("images/snakeup.png"),
             snakedown = getImage("images/snakedown.png"),
             snakeleft = getImage("images/snakeleft.png"),
             snakeright = getImage("images/snakeright.png"),
+            // Enemy
             guardup = getImage("images/guardup.png"),
             guarddown = getImage("images/guarddown.png"),
             guardleft = getImage("images/guardleft.png"),
             guardright = getImage("images/guardright.png"),
+            // Enemy with icon
             guardupALERT = getImage("images/guardupALERT.png"),
             guarddownALERT = getImage("images/guarddownALERT.png"),
             guardleftALERT = getImage("images/guardleftALERT.png"),
@@ -72,7 +76,24 @@ public class MazeView extends JFrame implements KeyListener {
             guarddownQUESTION = getImage("images/guarddownQUESTION.png"),
             guardleftQUESTION = getImage("images/guardleftQUESTION.png"),
             guardrightQUESTION = getImage("images/guardrightQUESTION.png"),
+            // Special enemy
+            bossup = getImage("images/spec_enemyup.png"),
+            bossdown = getImage("images/spec_enemydown.png"),
+            bossleft = getImage("images/spec_enemyleft.png"),
+            bossright = getImage("images/spec_enemyright.png"),
+            // Maze
             walltile = getImage("images/walltile.png"),
+            one = getImage("images/1.png"),
+            two = getImage("images/2.png"),
+            three = getImage("images/3.png"),
+            four = getImage("images/4.png"),
+            five = getImage("images/5.png"),
+            six = getImage("images/6.png"),
+            seven = getImage("images/7.png"),
+            eight = getImage("images/8.png"),
+            nine = getImage("images/9.png"),
+            ten = getImage("images/10.png"),
+            
             //mazefloor = getImage("images/mazefloor.png"), // Not currently used
             blank = getImage ("images/blank.png");
 
@@ -103,9 +124,9 @@ public class MazeView extends JFrame implements KeyListener {
         ContainerController mainContainer = rt.createMainContainer(p); 
         
         try{
-            AgentController ac = mainContainer.createNewAgent("enemy1", 
+            /*AgentController ac = mainContainer.createNewAgent("enemy1", 
             "AgentLearning.Enemy", params); // With the params declared earlier
-            ac.start();
+            ac.start();*/
             /*AgentController ac2 = mainContainer.createNewAgent("enemy2", "AgentLearning.Enemy", params);
             ac2.start();
             AgentController ac3 = mainContainer.createNewAgent("enemy3", "AgentLearning.Enemy", params);
@@ -114,6 +135,9 @@ public class MazeView extends JFrame implements KeyListener {
             ac4.start();
             AgentController ac5 = mainContainer.createNewAgent("enemy5", "AgentLearning.Enemy", params);
             ac5.start();*/
+            AgentController ac = mainContainer.createNewAgent("boss", 
+            "AgentLearning.Boss", params); // With the params declared earlier
+            ac.start();
         } catch (StaleProxyException e){
             System.out.println("StaleProxyException caught...");
         }
@@ -195,7 +219,7 @@ public class MazeView extends JFrame implements KeyListener {
     }
     
     // For debugging purposes (will probably be removed in final release)
-    /*
+    
     public final void paintLineOfSight(MazeMove mazemove){
         Graphics g = getGraphics();
         int mx = (scalex * 4) / 8;
@@ -212,7 +236,7 @@ public class MazeView extends JFrame implements KeyListener {
             }
         }
     }
-    */
+    
     
     // Draws the enemies
     public final void paintEnemy(MoveInfo current, MazeMove mazemove){
@@ -277,6 +301,98 @@ public class MazeView extends JFrame implements KeyListener {
                     g.drawImage(guardup, x + (scalex / 2), y + (scaley / 2), mx, my, null);
                 }
             }
+        }
+    }
+    
+    public final void paintBoss(MoveInfo current, MazeMove mazemove){
+        Graphics g = getGraphics(); // needed?
+        int mx = (scalex * 4) / 8;
+        int my = (scaley * 4) / 8;
+        MoveInfo previous;
+        previous = mazemove.GetPreviousLocation();
+        if (previous != null){
+            x = (previous.x * scalex) + 20;
+            y = TOP + 20 + previous.y * scaley;
+            g.drawImage(blank, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+        }
+        
+        if (current != null) {
+            x = (current.x * scalex) + 20;
+            y = TOP + 20 + current.y * scaley;
+            if (current.move == MoveInfo.NORTH) {
+                g.drawImage(bossup, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+            } else if (current.move == MoveInfo.EAST) {
+                g.drawImage(bossright, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+            } else if (current.move == MoveInfo.SOUTH) {
+                g.drawImage(bossdown, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+            } else if (current.move == MoveInfo.WEST) {
+                g.drawImage(bossleft, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+            } else if (current.move == MoveInfo.NONE) {
+                g.drawImage(bossup, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+            }
+        }
+    }
+    
+    // Draws each cell's costs (used for debugging)
+    public final void paintCosts(MoveInfo current, MazeMove mazemove, PrimMazeInfo mazeinfo){
+        Graphics g = getGraphics(); // needed?
+        int mx = (scalex * 4) / 8;
+        int my = (scaley * 4) / 8;
+        playercurrent = player.GetLocation();
+        // Erase previous costs
+        for (int j = 0; j < this.height; j++, y += scaley) {
+            x = 20;
+            for (int i = 0; i < this.width; i++, x += scalex) {
+                if ((j != playercurrent.y && i != playercurrent.x) && (j != current.y && i != current.x)){ // Don't draw over the enemy or the player
+                    g.drawImage(blank, x + (scalex / 2), y + (scaley / 2), mx, my, null);
+                }
+            }
+        }
+        
+        g.fillRect(current.x, current.y, scalex, scaley / 4);
+        
+        // Draw the costs - DOESN'T WORK???
+       /* for (int j = 0; j < this.height; j++) {
+            x = 20;
+            //y = TOP+20;
+            
+            for (int i = 0; i < this.width; i++) {
+                
+                if ((i != playercurrent.y && j != playercurrent.x) && (i != current.y && j != current.x)){ // Don't draw over the enemy or the player
+                    //x = (x * scalex) + 20;
+            //y = TOP + 20 + (y * scaley);
+            System.out.println(x + " " + y);
+                    switch (mazeinfo.costs[j][i]) {
+                        case 1:
+                            g.drawImage(one, x + (scalex / 2), y + (scaley / 2), cx, cy, null);
+                        case 2:
+                            g.drawImage(two, x + (scalex / 2), y + (scaley / 2), cx, cy, null);
+                        case 3:
+                            g.drawImage(three, x + (scalex / 2), y + (scaley / 2), cx, cy, null);
+                        case 4:
+                            g.drawImage(four, x + (scalex / 2), y + (scaley / 2), cx, cy, null);
+                        case 5:
+                            g.drawImage(five, x + (scalex / 2), y + (scaley / 2), cx, cy, null);
+                        case 6:
+                            g.drawImage(six, x + (scalex / 2), y + (scaley / 2), cx, cy, null);
+                        case 7:
+                            g.drawImage(seven, x + (scalex / 2), y + (scaley / 2), cx, cy, null);
+                        case 8:
+                            g.drawImage(eight, x + (scalex / 2), y + (scaley / 2), cx, cy, null);
+                        case 9:
+                            g.drawImage(nine, x + (scalex / 2), y + (scaley / 2), cx, cy, null);
+                        default:
+                            g.drawImage(ten, x + (scalex / 2), y + (scaley / 2), cx, cy, null);
+                    }
+                }
+            }
+        }*/
+        System.out.println("Costs:");
+        for (int i = 0; i < mazeinfo.costs.length; i++){
+            for (int j = 0; j < mazeinfo.costs.length; j++){ // i and j are the same (costs has the same width and height)
+                System.out.print(mazeinfo.costs[i][j] + " ");
+            }
+            System.out.println(""); // new line for every row
         }
     }
     
@@ -389,7 +505,7 @@ public class MazeView extends JFrame implements KeyListener {
                 break;
             case "caution":
                 g.drawImage(blank, 740, 100, 200, 200, null);
-                g.setColor(Color.YELLOW);
+                g.setColor(Color.MAGENTA);
                 g.drawString("Caution", 740, 160);
                 g.setColor(Color.BLACK);
                 break;

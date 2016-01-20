@@ -336,7 +336,7 @@ public class MazeMove {
     
     // NEEDS TWEAKING
     // Implementation of the A* algorithm for pursuing the player. Decides the best cell to move to each time.
-    public void AStarPursuePlayer(int playerY, int playerX){
+    public void AStarPursuePlayer(int playerY, int playerX, PrimMazeInfo mazeinfo){
         // Work out the cost of moving to whatever cells we have available
         MoveInfo currentCell = movelist.Pop();
         if (movelist.length >= 0){
@@ -373,9 +373,10 @@ public class MazeMove {
                 //brokenWalls = FindBrokenWalls(tempY, tempX);
                 //costNORTH = costNORTH + brokenWalls.length; // More walls = worse?
                 if (mazeinfo.seen[tempY][xcoord]){
-                    costNORTH = costNORTH + mazeinfo.costs[tempY][xcoord];
+                    //costNORTH = costNORTH + mazeinfo.costs[tempY][xcoord];
+                    costNORTH++;
                 }
-                System.out.println("North cost is " + costNORTH);
+                //System.out.println("North cost is " + costNORTH);
                 tempY = ycoord; // Reset tempY
             } else { 
                 costNORTH = 100; // Assign an abnormally large cost to show we don't want to go through the wall - otherwise when we skip a wall because it's not broken, the "cost" will remain at 0 (which is "less" than the others and so "better")
@@ -391,9 +392,10 @@ public class MazeMove {
                 //brokenWalls = FindBrokenWalls(tempY, tempX);
                 //costEAST = costEAST + brokenWalls.length;
                 if (mazeinfo.seen[ycoord][tempX]){
-                    costEAST = costEAST + mazeinfo.costs[ycoord][tempX];
+                    //costEAST = costEAST + mazeinfo.costs[ycoord][tempX];
+                    costEAST++;
                 }
-                System.out.println("East cost is " + costEAST);
+                //System.out.println("East cost is " + costEAST);
                 tempX = xcoord;
             } else { 
                 costEAST = 100;
@@ -409,9 +411,10 @@ public class MazeMove {
                 //brokenWalls = FindBrokenWalls(tempY, tempX);
                 //costSOUTH = costSOUTH + brokenWalls.length;
                 if (mazeinfo.seen[tempY][xcoord]){
-                    costSOUTH = costSOUTH + mazeinfo.costs[tempY][xcoord];
+                    //costSOUTH = costSOUTH + mazeinfo.costs[tempY][xcoord];
+                    costSOUTH++;
                 }
-                System.out.println("South cost is " + costSOUTH);
+                //System.out.println("South cost is " + costSOUTH);
                 tempY = ycoord;
             } else { 
                 costSOUTH = 100;
@@ -427,9 +430,10 @@ public class MazeMove {
                 //brokenWalls = FindBrokenWalls(tempY, tempX);
                 //costWEST = costWEST + brokenWalls.length;
                 if (mazeinfo.seen[ycoord][tempX]){
-                    costWEST = costWEST + mazeinfo.costs[ycoord][tempX];
+                    //costWEST = costWEST + mazeinfo.costs[ycoord][tempX];
+                    costWEST++;
                 }
-                System.out.println("West cost is " + costWEST);
+                //System.out.println("West cost is " + costWEST);
                 tempX = xcoord;
             } else { 
                 costWEST = 100;
@@ -439,29 +443,29 @@ public class MazeMove {
             int leastCost = costs[0];
             for (int i=0; i<costs.length; i++){
                 if (costs[i] < leastCost){
-                    System.out.println("Got inside for-if");
+                    //System.out.println("Got inside for-if");
                     leastCost = costs[i];
                     leastCostIndex = i;
                 }
             }
             // And move in that direction
             if (leastCostIndex == 0){ // North has the least cost
-                System.out.println("Trying to move North");
+                //System.out.println("Trying to move North");
                 --ycoord;
                 move = 1;
                 movelist.Push(ycoord, xcoord, move);
             } else if (leastCostIndex == 1){ // East has the least cost
-                System.out.println("Trying to move East");
+                //System.out.println("Trying to move East");
                 ++xcoord;
                 move = 2;
                 movelist.Push(ycoord, xcoord, move);
             } else if (leastCostIndex == 2){ // South has the least cost
-                System.out.println("Trying to move South");
+                //System.out.println("Trying to move South");
                 ++ycoord;
                 move = 3;
                 movelist.Push(ycoord, xcoord, move);
             } else if (leastCostIndex == 3){ // West has the least cost
-                System.out.println("Trying to move West");
+                //System.out.println("Trying to move West");
                 --xcoord;
                 move = 4;
                 movelist.Push(ycoord, xcoord, move);
@@ -469,6 +473,7 @@ public class MazeMove {
                 System.out.println("ERROR"); // Just in case...
             }
             mazeinfo.seen[ycoord][xcoord] = true;
+            //mazeinfo.costs[ycoord][xcoord] = leastCost;
         //}
     }
     

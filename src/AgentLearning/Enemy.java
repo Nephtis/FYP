@@ -26,6 +26,7 @@ public class Enemy extends Agent{
     private AID[] otherAgents; // list of other agents
     private int[][] pursuitAlgorithmSuccess[][]; // 0 = blind rush, 1 = A*, 2 = etc...
     /* 
+    IDEA:
     Each time the agents go to pursue the player, they pick the one that has the highest success rate.
     If two algorithms have the same success rate, pick the earlier one in the array.
     The array will look something like this:
@@ -207,6 +208,7 @@ public class Enemy extends Agent{
                     
                     moves.PatrolArea(mastermazeinfo);// agent roams everywhere...
                     view.paintEnemy(moves.GetLocation(), moves);
+                    view.PrintGUIMessage("normal");
 
                     // Check if player is in line of sight
                     // (Currently greater than 1 Cell away i.e. not next to enemy, also think about move direction being deceptive i.e. facing wrong way)
@@ -245,7 +247,7 @@ public class Enemy extends Agent{
                     }
                     
                 break;
-                    
+                    // ALERT CASE ----------------------------------------------------------------------------------------------------------------------------------------
                 case 1:                   
                     reply = myAgent.receive(mt);
                     if (reply != null){
@@ -276,7 +278,7 @@ public class Enemy extends Agent{
                         try {
                             //moves.MoveToCoords(player.GetLocation().y, player.GetLocation().x);
                             //moves.PursuePlayer(player.GetLocation().y, player.GetLocation().x);
-                            moves.AStarPursuePlayer(player.GetLocation().y, player.GetLocation().x);
+                            moves.AStarPursuePlayer(player.GetLocation().y, player.GetLocation().x, mazeinfo);
                             Thread.sleep(500);
                         } catch (InterruptedException ex) {
                             Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
@@ -312,6 +314,7 @@ public class Enemy extends Agent{
                     step = 2; // evasion/search
                     break;    
                     
+                    // SEARCH CASE ----------------------------------------------------------------------------------------------------------------------------------------
                 case 2:    
                     view.paintEnemy(moves.GetLocation(), moves);
                     //System.out.println("Searching for player...");
@@ -321,7 +324,7 @@ public class Enemy extends Agent{
                     while (i_search < 20){
                         // Wait time between each move
                         try {
-                            Thread.sleep(750);
+                            Thread.sleep(600);
                             moves.SearchArea(moves.getXCoord(), moves.getYCoord());
                         } catch (InterruptedException ex) {
                             Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
@@ -397,8 +400,80 @@ public class Enemy extends Agent{
                     
                 case 3:
                     view.searchmode = false;
+                    view.cautionmode = true;
+                    view.PrintGUIMessage("caution");
                     System.out.println("    "+getAID().getName()+": Entering caution mode");
                     // Do caution stuff
+                    while (i_caution < 30){
+                        try {
+                            Thread.sleep(700);
+                            moves.SearchArea(moves.getXCoord(), moves.getYCoord());
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        
+                        view.paintEnemy(moves.GetLocation(), moves);
+                        i_caution++;
+                        
+                        moves.SenseNearby();
+                        sensearea = moves.getSenseList();
+                        // Sense the player if they're nearby
+                        for (int i=0; i<sensearea.length; i++) {
+                            if (sensearea[i] != null) {
+                                if ((sensearea[i].y == player.GetLocation().y) && (sensearea[i].x == player.GetLocation().x)) {
+                                    // This time, if you get sensed, this will trigger an alert since guards are on edge
+                                    ACLMessage alertmsg = new ACLMessage(ACLMessage.INFORM);
+                                    for (int j=0; j<otherAgents.length; j++){
+                                        alertmsg.addReceiver(otherAgents[j]);
+                                    }
+                                    alertmsg.setConversationId("alert mode");
+                                    alertmsg.setReplyWith("inform"+System.currentTimeMillis());
+                                    myAgent.send(alertmsg);
+                                    System.out.println("    "+getAID().getName()+": Sensed player! Going to alert mode!");
+                                    view.alertmode = true;
+                                    view.PrintGUIMessage("alert"); // Display the alert message on the GUI
+                                    step = 1;
+                                    break;    
+                                }
+                            }
+                        }
+                        
+                        if ((moves.getYCoord() == player.GetLocation().y) && (moves.getXCoord() == player.GetLocation().x)){
+                            view.paintEnemy(moves.GetLocation(), moves);
+                            System.out.println("    "+getAID().getName()+": Player caught at x " + player.GetLocation().x + " y " + player.GetLocation().y);
+                            view.EndGame("lose");
+                            doDelete();
+                            break;
+                        }
+                        
+                        lineofsight = moves.getLineOfSight();
+                        for (int i=0; i<lineofsight.length; i++) {
+                            if (lineofsight[i] != null) {
+                                if ((lineofsight[i].y == player.GetLocation().y) && (lineofsight[i].x == player.GetLocation().x)) {
+                                    // ALERT MODE
+                                    // Send alert message to other agents
+                                    ACLMessage alertmsg = new ACLMessage(ACLMessage.INFORM);
+                                    for (int j=0; j<otherAgents.length; j++){
+                                        alertmsg.addReceiver(otherAgents[j]);
+                                    }
+                                    alertmsg.setConversationId("alert mode");
+                                    alertmsg.setReplyWith("inform"+System.currentTimeMillis());
+                                    myAgent.send(alertmsg);
+                                    System.out.println("    "+getAID().getName()+": Player in my line of sight! Waiting 1 secs (so player can move away)");
+                                    view.alertmode = true;
+                                    view.PrintGUIMessage("alert"); // Display the alert message on the GUI
+                                    try {
+                                        Thread.sleep(500); // This has to be surrounded in a try/catch
+                                    } catch (InterruptedException ex) {
+                                        Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
+                                    System.out.println("    "+getAID().getName()+": Done waiting, go to alert mode!");
+                                    step = 1; // change to different 'action'
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     //step = 0; // All clear, return to normal state (patrol)
                     step = 0;
                     break; 
