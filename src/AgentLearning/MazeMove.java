@@ -372,11 +372,13 @@ public class MazeMove {
                 costNORTH = dist; 
                 //brokenWalls = FindBrokenWalls(tempY, tempX);
                 //costNORTH = costNORTH + brokenWalls.length; // More walls = worse?
-                if (mazeinfo.seen[tempY][xcoord]){
+                /*if (mazeinfo.seen[tempY][xcoord]){
                     //costNORTH = costNORTH + mazeinfo.costs[tempY][xcoord];
                     costNORTH++;
-                }
+                }*/
                 //System.out.println("North cost is " + costNORTH);
+                // Assign to cost array
+                mazeinfo.costs[tempY][xcoord] = costNORTH;
                 tempY = ycoord; // Reset tempY
             } else { 
                 costNORTH = 100; // Assign an abnormally large cost to show we don't want to go through the wall - otherwise when we skip a wall because it's not broken, the "cost" will remain at 0 (which is "less" than the others and so "better")
@@ -391,11 +393,12 @@ public class MazeMove {
                 costEAST = dist; 
                 //brokenWalls = FindBrokenWalls(tempY, tempX);
                 //costEAST = costEAST + brokenWalls.length;
-                if (mazeinfo.seen[ycoord][tempX]){
+                /*if (mazeinfo.seen[ycoord][tempX]){
                     //costEAST = costEAST + mazeinfo.costs[ycoord][tempX];
                     costEAST++;
-                }
+                }*/
                 //System.out.println("East cost is " + costEAST);
+                mazeinfo.costs[ycoord][tempX] = costEAST;
                 tempX = xcoord;
             } else { 
                 costEAST = 100;
@@ -410,11 +413,12 @@ public class MazeMove {
                 costSOUTH = dist; 
                 //brokenWalls = FindBrokenWalls(tempY, tempX);
                 //costSOUTH = costSOUTH + brokenWalls.length;
-                if (mazeinfo.seen[tempY][xcoord]){
+                /*if (mazeinfo.seen[tempY][xcoord]){
                     //costSOUTH = costSOUTH + mazeinfo.costs[tempY][xcoord];
                     costSOUTH++;
-                }
+                }*/
                 //System.out.println("South cost is " + costSOUTH);
+                mazeinfo.costs[tempY][xcoord] = costSOUTH;
                 tempY = ycoord;
             } else { 
                 costSOUTH = 100;
@@ -429,11 +433,12 @@ public class MazeMove {
                 costWEST = dist; 
                 //brokenWalls = FindBrokenWalls(tempY, tempX);
                 //costWEST = costWEST + brokenWalls.length;
-                if (mazeinfo.seen[ycoord][tempX]){
+                /*if (mazeinfo.seen[ycoord][tempX]){
                     //costWEST = costWEST + mazeinfo.costs[ycoord][tempX];
                     costWEST++;
-                }
+                }*/
                 //System.out.println("West cost is " + costWEST);
+                mazeinfo.costs[ycoord][tempX] = costWEST;
                 tempX = xcoord;
             } else { 
                 costWEST = 100;
