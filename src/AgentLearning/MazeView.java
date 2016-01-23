@@ -154,7 +154,7 @@ public class MazeView extends JFrame implements KeyListener {
     // This draws the maze on the screen so that it can be seen and interacted with more easily.
     public final void paintBG(Graphics g) throws InterruptedException{
         g.setColor(Color.LIGHT_GRAY); // Screen background
-        Thread.sleep(500); // No idea why but for some reason it doesn't draw properly unless there's a small delay
+        Thread.sleep(100); // No idea why but for some reason it doesn't draw properly unless there's a small delay
         g.fillRect(0, 0, getWidth(), getHeight());
         // Draw a 'floor' background (currently just using a solid colour so I can paint over it)
         //g.drawImage(mazefloor, 0, 0, getWidth(), getHeight(), null);
