@@ -57,8 +57,8 @@ public class Boss extends Agent {
 
             moves.AStarPursuePlayer(player.GetLocation().y, player.GetLocation().x, mazeinfo);
             
-            view.paintCosts(moves.GetLocation(), moves, mazeinfo);
-            view.paintBoss(moves.GetLocation(), moves);
+            //view.paintCosts(moves.GetLocation(), moves, mazeinfo);
+            view.paintBoss(moves.GetLocation(), moves, mazeinfo);
 
             if ((moves.getYCoord() == player.GetLocation().y) && (moves.getXCoord() == player.GetLocation().x)) {
                 view.paintEnemy(moves.GetLocation(), moves); // re-paint so we're not left with an afterimage

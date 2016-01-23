@@ -22,7 +22,7 @@ public class GenerateMaze {
     Wall peekedwall;
 
     // Constructor
-    public GenerateMaze(int m, int n) {
+    public GenerateMaze(int m, int n) throws InterruptedException {
         // Create maze
         maze = new Cell[m][n];
         for (int i = 0; i < m; i++) {

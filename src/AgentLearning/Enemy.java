@@ -208,7 +208,7 @@ public class Enemy extends Agent{
                     
                     moves.PatrolArea(mastermazeinfo);// agent roams everywhere...
                     view.paintEnemy(moves.GetLocation(), moves);
-                    view.PrintGUIMessage("normal");
+                    //view.PrintGUIMessage("normal");
 
                     // Check if player is in line of sight
                     // (Currently greater than 1 Cell away i.e. not next to enemy, also think about move direction being deceptive i.e. facing wrong way)
@@ -400,8 +400,8 @@ public class Enemy extends Agent{
                     
                 case 3:
                     view.searchmode = false;
-                    view.cautionmode = true;
-                    view.PrintGUIMessage("caution");
+                    //view.cautionmode = true;
+                    //view.PrintGUIMessage("caution");
                     System.out.println("    "+getAID().getName()+": Entering caution mode");
                     // Do caution stuff
                     while (i_caution < 30){
