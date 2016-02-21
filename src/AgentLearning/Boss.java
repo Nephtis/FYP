@@ -10,6 +10,7 @@ import jade.core.behaviours.TickerBehaviour;
 public class Boss extends Agent {
 
     private MazeMove moves; // unique list of moves that this agent has done
+    private int counter = 0;
 
     // Agent initialization  
     protected void setup() {
@@ -54,8 +55,22 @@ public class Boss extends Agent {
             if (!(view.running)) {
                 doDelete();
             }
-
-            moves.AStarPursuePlayer(player.GetLocation().y, player.GetLocation().x, mazeinfo);
+            
+            if (counter == 0){
+                moves.AStarPursuePlayer(player.GetLocation().y, player.GetLocation().x, mazeinfo);
+            } else {
+                moves.MoveRandomly(); // Just go anywhere, try to get out
+                counter++;
+                if (counter == 5){ // Moved enough randomly
+                    counter = 0;
+                }
+            }
+            
+            // Difference in this and in moves.get...
+            if (mazeinfo.timesVisited.length > 3){ // Am I dithering around in one area?
+                System.out.println("randomly");
+                counter = 1;
+            }    
             
             //view.paintCosts(moves.GetLocation(), moves, mazeinfo);
             view.paintBoss(moves.GetLocation(), moves, mazeinfo);

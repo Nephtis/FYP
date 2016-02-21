@@ -277,7 +277,7 @@ public class MazeMove {
             //}
     }
     
-    public void PursuePlayer(int playerY, int playerX){
+    public void BlindlyPursuePlayer(int playerY, int playerX){
         // Head for the player
         // Potentially we might get 'stuck', so have a check to see if we haven't moved in the past iteration or something
         // otherwise just blindly rush towards the player?
@@ -290,23 +290,23 @@ public class MazeMove {
         int move = currentCell.move;
         //mazeinfo.seen[ycoord][xcoord] = true;
         // For some reason, putting "seen" stuff here causes null exceptions... or does it?
-        if (currentCell.y < playerY && maze[ycoord][xcoord].southwall.isBroken() && !(mazeinfo.seen[ycoord + 1][xcoord])){ // We are above player and can move down (SOUTH)
+        if (currentCell.y < playerY && maze[ycoord][xcoord].southwall.isBroken()){// && !(mazeinfo.seen[ycoord + 1][xcoord])){ // We are above player and can move down (SOUTH)
             ++ycoord;
             move = 3;
         }
-        else if (currentCell.y > playerY && maze[ycoord][xcoord].northwall.isBroken() && !(mazeinfo.seen[ycoord - 1][xcoord])){ // We are below player and can move up (NORTH)
+        else if (currentCell.y > playerY && maze[ycoord][xcoord].northwall.isBroken()){// && !(mazeinfo.seen[ycoord - 1][xcoord])){ // We are below player and can move up (NORTH)
             --ycoord;
             move = 1;
         }
-        else if (currentCell.x < playerX && maze[ycoord][xcoord].eastwall.isBroken() && !(mazeinfo.seen[ycoord][xcoord + 1])){ // We are to the left of the left of the player and can move right (EAST)
+        else if (currentCell.x < playerX && maze[ycoord][xcoord].eastwall.isBroken()){// && !(mazeinfo.seen[ycoord][xcoord + 1])){ // We are to the left of the left of the player and can move right (EAST)
             ++xcoord;
             move = 2;
         }
-        else if (currentCell.x > playerX && maze[ycoord][xcoord].westwall.isBroken() && !(mazeinfo.seen[ycoord][xcoord - 1])){ // We are to the right of the player and can move left (WEST)
+        else if (currentCell.x > playerX && maze[ycoord][xcoord].westwall.isBroken()){// && !(mazeinfo.seen[ycoord][xcoord - 1])){ // We are to the right of the player and can move left (WEST)
             --xcoord;
             move = 4;
         } 
-        else { // If we haven't moved
+        else { // If we haven't moved (although this is redundant, but at least we have a "bad cell checker")
             mazeinfo.seen[ycoord][xcoord] = true; // Treat this like a "dead end" and block it off
             System.out.println("Haven't moved, bad cell is X " + xcoord + ", Y " + ycoord);
             // Move somewhere that isn't the bad cell (BUT how do we avoid blocking ourselves/other agents off? say you CAN go to a 'blocked' cell, but try not to?)
@@ -315,16 +315,16 @@ public class MazeMove {
             // HOWEVER we may run into the problem of none of these conditions being executed if there are too many conditions...
             // one of them HAS to be executed or this block is mostly pointless
             // Get best possible movement each time based on player pos, walls etc?
-            if (maze[ycoord][xcoord].northwall.isBroken() && !(mazeinfo.seen[ycoord - 1][xcoord])) { // Remember, can't "look ahead" (e.g. ycoord + 1) to a cell that's outside an edge (doesn't exist - array out of bounds exception), so check if wall is broken FIRST inside if logic
+            if (maze[ycoord][xcoord].northwall.isBroken()){// && !(mazeinfo.seen[ycoord - 1][xcoord])) { // Remember, can't "look ahead" (e.g. ycoord + 1) to a cell that's outside an edge (doesn't exist - array out of bounds exception), so check if wall is broken FIRST inside if logic
                 --ycoord;   // Up
                 move = 1;
-            } else if (maze[ycoord][xcoord].eastwall.isBroken() && !(mazeinfo.seen[ycoord][xcoord + 1])) {
+            } else if (maze[ycoord][xcoord].eastwall.isBroken()){// && !(mazeinfo.seen[ycoord][xcoord + 1])) {
                 ++xcoord;   // Right
                 move = 2;
-            } else if (maze[ycoord][xcoord].southwall.isBroken() && !(mazeinfo.seen[ycoord + 1][xcoord])) {
+            } else if (maze[ycoord][xcoord].southwall.isBroken()){// && !(mazeinfo.seen[ycoord + 1][xcoord])) {
                 ++ycoord;   // Down
                 move = 3;
-            } else if (maze[ycoord][xcoord].westwall.isBroken() && !(mazeinfo.seen[ycoord][xcoord - 1])) {
+            } else if (maze[ycoord][xcoord].westwall.isBroken()){// && !(mazeinfo.seen[ycoord][xcoord - 1])) {
                 --xcoord;   // Left
                 move = 4;
             }
@@ -360,6 +360,7 @@ public class MazeMove {
             // and to increase cost of where agent is NOW (to check next time) instead of increasing 
             // cost of potential locs and getting stuck because you'll trap yourself with higher cost potential locs
             mazeinfo.costs[ycoord][xcoord]++;
+            //mazeinfo.timesVisited[ycoord][xcoord]++;
         }
         //while (ycoord != playerY && xcoord != playerX){ // Work out the entire route each time?
             if (maze[ycoord][xcoord].northwall.isBroken()){ // If we can move North, how much does North cost?
@@ -370,12 +371,12 @@ public class MazeMove {
                     dist = dist + (-dist * 2); // e.g. if dist is -3, we just want 3, so: -3 + (--3 * 2), -- turns into +, so this ends up as -3 + 6 = 3
                 }
                 costNORTH = dist; 
-                //brokenWalls = FindBrokenWalls(tempY, tempX);
-                //costNORTH = costNORTH + brokenWalls.length; // More walls = worse?
-                /*if (mazeinfo.seen[tempY][xcoord]){
+                brokenWalls = FindBrokenWalls(tempY, tempX);
+                costNORTH = costNORTH + brokenWalls.length; // More walls = worse?
+                if (mazeinfo.seen[tempY][xcoord]){
                     //costNORTH = costNORTH + mazeinfo.costs[tempY][xcoord];
                     costNORTH++;
-                }*/
+                }
                 //System.out.println("North cost is " + costNORTH);
                 // Assign to cost array
                 mazeinfo.costs[tempY][xcoord] = costNORTH;
@@ -391,12 +392,12 @@ public class MazeMove {
                     dist = dist + (-dist * 2);
                 }
                 costEAST = dist; 
-                //brokenWalls = FindBrokenWalls(tempY, tempX);
-                //costEAST = costEAST + brokenWalls.length;
-                /*if (mazeinfo.seen[ycoord][tempX]){
+                brokenWalls = FindBrokenWalls(tempY, tempX);
+                costEAST = costEAST + brokenWalls.length;
+                if (mazeinfo.seen[ycoord][tempX]){
                     //costEAST = costEAST + mazeinfo.costs[ycoord][tempX];
                     costEAST++;
-                }*/
+                }
                 //System.out.println("East cost is " + costEAST);
                 mazeinfo.costs[ycoord][tempX] = costEAST;
                 tempX = xcoord;
@@ -411,12 +412,12 @@ public class MazeMove {
                     dist = dist + (-dist * 2);
                 }
                 costSOUTH = dist; 
-                //brokenWalls = FindBrokenWalls(tempY, tempX);
-                //costSOUTH = costSOUTH + brokenWalls.length;
-                /*if (mazeinfo.seen[tempY][xcoord]){
+                brokenWalls = FindBrokenWalls(tempY, tempX);
+                costSOUTH = costSOUTH + brokenWalls.length;
+                if (mazeinfo.seen[tempY][xcoord]){
                     //costSOUTH = costSOUTH + mazeinfo.costs[tempY][xcoord];
                     costSOUTH++;
-                }*/
+                }
                 //System.out.println("South cost is " + costSOUTH);
                 mazeinfo.costs[tempY][xcoord] = costSOUTH;
                 tempY = ycoord;
@@ -431,12 +432,12 @@ public class MazeMove {
                     dist = dist + (-dist * 2);
                 }
                 costWEST = dist; 
-                //brokenWalls = FindBrokenWalls(tempY, tempX);
-                //costWEST = costWEST + brokenWalls.length;
-                /*if (mazeinfo.seen[ycoord][tempX]){
+                brokenWalls = FindBrokenWalls(tempY, tempX);
+                costWEST = costWEST + brokenWalls.length;
+                if (mazeinfo.seen[ycoord][tempX]){
                     //costWEST = costWEST + mazeinfo.costs[ycoord][tempX];
                     costWEST++;
-                }*/
+                }
                 //System.out.println("West cost is " + costWEST);
                 mazeinfo.costs[ycoord][tempX] = costWEST;
                 tempX = xcoord;
@@ -478,8 +479,62 @@ public class MazeMove {
                 System.out.println("ERROR"); // Just in case...
             }
             mazeinfo.seen[ycoord][xcoord] = true;
-            //mazeinfo.costs[ycoord][xcoord] = leastCost;
+            mazeinfo.timesVisited[ycoord][xcoord]++;
         //}
+    }
+    
+    public int getTimesVisited(){
+        MoveInfo currentCell = movelist.Peek();
+        System.out.println("Times visited is: " + mazeinfo.timesVisited[currentCell.y][currentCell.x]);
+        return mazeinfo.timesVisited[currentCell.y][currentCell.x];
+    }
+    
+    // Do this if we're stuck in some part of the maze for whatever reason
+    public void MoveRandomly(){
+        Random randomGenerator = new Random();
+        MoveInfo currentCell = movelist.Pop();
+        int[] brokenWalls; // Stores ints corresponding to only the possible Walls (broken) which we will select from (i.e. ignoring unbroken ones)
+            
+        if (movelist.length >= 0){ // only record previous moves if the Enemy has moved at least once (not counting the start 'move')
+            onebehindmovelist.Push(currentCell.y, currentCell.x, currentCell.move); // Push the unchanged values
+        }
+            
+        brokenWalls = FindBrokenWalls(currentCell.y, currentCell.x); // Find what Walls are currently broken in our Cell
+        int rand = 0;
+        rand = randomGenerator.nextInt(brokenWalls.length); // Select one of the possile directions we can move - this will be the INDEX we select a dir from
+        int direction = brokenWalls[rand]; // Select a VALID direction using the random index we generated
+        int xcoord = currentCell.x;
+        int ycoord = currentCell.y;
+        int move = 0;
+        
+        if ((direction == MoveInfo.NORTH) && (maze[ycoord][xcoord].northwall.isBroken())) {
+                --ycoord;   // Up
+                move = 1;
+        } else if ((direction == MoveInfo.EAST) && (maze[ycoord][xcoord].eastwall.isBroken())) {
+                ++xcoord;   // Right
+                move = 2;
+        } else if ((direction == MoveInfo.SOUTH) && (maze[ycoord][xcoord].southwall.isBroken())) {
+                ++ycoord;   // Down
+                move = 3;
+        } else if ((direction == MoveInfo.WEST) && (maze[ycoord][xcoord].westwall.isBroken())) {
+                --xcoord;   // Left
+                move = 4;
+        }
+        movelist.Push(ycoord, xcoord, move);
+    }
+    
+    // "Sixth sense" ability, will calculate best route to player and move there
+    public void DepthFirstPursuePlayer(){
+        
+    }
+    
+    // Are we just dithering around in one area?
+    public boolean dithering(){
+        MoveInfo currentCell = movelist.Peek();
+        if (mazeinfo.seen[currentCell.y][currentCell.x]){
+            return true;
+        }
+        return false;
     }
     
     public void LookAhead(){

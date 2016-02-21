@@ -8,6 +8,7 @@ public class PrimMazeInfo {
 
     public boolean seen[][];
     public int costs[][];
+    public int timesVisited[][];
     private int width, height;
     private int startM, startN;
     private int targetM, targetN;
@@ -26,7 +27,9 @@ public class PrimMazeInfo {
         width = maze[0].length;
         seen = new boolean[height][width];
         costs = new int[height][width];
+        timesVisited = new int [height][width];
         patrolcosts = new int[height][width];
+        
         for (int j = 0; j < height; j++) {
             for (int i = 0; i < width; i++) {
                 seen[j][i] = false;
@@ -42,7 +45,13 @@ public class PrimMazeInfo {
                 patrolcosts[j][i] = 0;
             }
         }
+        for (int j = 0; j < height; j++) {
+            for (int i = 0; i < width; i++) {
+                timesVisited[j][i] = 0;
+            }
+        }
     }
+    
     public void resetSeen(){
         for (int j = 0; j < height; j++) {
             for (int i = 0; i < width; i++) {
@@ -61,6 +70,13 @@ public class PrimMazeInfo {
         for (int j = 0; j < height; j++) {
             for (int i = 0; i < width; i++) {
                 patrolcosts[j][i] = 0;
+            }
+        }
+    }
+    public void resetTimesVisited(){
+        for (int j = 0; j < height; j++) {
+            for (int i = 0; i < width; i++) {
+                timesVisited[j][i] = 0;
             }
         }
     }

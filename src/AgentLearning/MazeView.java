@@ -315,9 +315,9 @@ public class MazeView extends JFrame implements KeyListener {
         }
         
         //System.out.println("Costs:");
-        for (int i = 0; i < mazeinfo.costs.length; i++){
-            for (int j = 0; j < mazeinfo.costs.length; j++){ // i and j are the same (costs has the same width and height)
-                System.out.print(mazeinfo.costs[i][j] + " ");
+        for (int i = 0; i < mazeinfo.timesVisited.length; i++){
+            for (int j = 0; j < mazeinfo.timesVisited.length; j++){ // i and j are the same (costs has the same width and height)
+                System.out.print(mazeinfo.timesVisited[i][j] + " ");
             }
             System.out.println(""); // new line for every row
         }
