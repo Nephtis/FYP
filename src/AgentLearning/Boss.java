@@ -55,6 +55,7 @@ public class Boss extends Agent {
             if (!(view.running)) {
                 doDelete();
             }
+            System.out.println("Times visited: " + mazeinfo.timesVisited[moves.getXCoord()][moves.getYCoord()]);
             
             if (counter == 0){
                 moves.AStarPursuePlayer(player.GetLocation().y, player.GetLocation().x, mazeinfo);
@@ -66,8 +67,8 @@ public class Boss extends Agent {
                 }
             }
             
-            // Difference in this and in moves.get...
-            if (mazeinfo.timesVisited.length > 3){ // Am I dithering around in one area?
+            // Difference in this and in moves.get... (what?)
+            if (mazeinfo.timesVisited[moves.getXCoord()][moves.getYCoord()] > 3){ // Am I dithering around in one area?
                 System.out.println("randomly");
                 counter = 1;
             }    

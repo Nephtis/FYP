@@ -183,7 +183,7 @@ public class MazeView extends JFrame implements KeyListener {
 //                }
                 if ((j == mazeinfo.getTargetM()) && (i == mazeinfo.getTargetN())) {
                     // Draw the exit
-                    g.drawImage(jeep, x + (scalex / 2), y + (scaley / 2), cx, cy, null);
+                    g.drawImage(jeep, x + (scalex / 2), y + (scaley / 2) - 50, cx, cy, null);
                     //g.setColor(Color.LIGHT_GRAY);
                     if (maze[j][i].northwall.isEdge()) {
                         // Paint over the edge creating a 'way out'
@@ -411,7 +411,13 @@ public class MazeView extends JFrame implements KeyListener {
         Graphics g = getGraphics();
         g.setFont(new Font("", 0, 40));
         g.drawString("Enemy status:", 740, 80);
-        g.setFont(new Font("", 0, 60));
+        
+        // "How to play" instructions
+        g.setFont(new Font("", 0, 20));
+         g.drawString("Move using arrow keys.", 740, 750);
+         g.drawString("Reach the exit at the top right!", 740, 800);
+         
+         g.setFont(new Font("", 0, 60));
         switch (message){
             case "normal": 
                 g.drawImage(blank, 740, 100, 200, 200, null); // Paint over the previous message
