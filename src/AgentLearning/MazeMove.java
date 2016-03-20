@@ -345,7 +345,7 @@ public class MazeMove {
         int xcoord = currentCell.x;
         int ycoord = currentCell.y;
         int move = currentCell.move;
-        int costNORTH = 0;
+        int costNORTH = 0; // Default costs start at 0 and get changed later
         int costEAST = 0;
         int costSOUTH = 0;
         int costWEST = 0;
@@ -354,13 +354,13 @@ public class MazeMove {
         int[] brokenWalls = new int[3];
         int[] costs = new int[4];
         int leastCostIndex = 0;
-        int dist = 0; // Distance between where we are and where player is
+        int dist = 0; // Distance between where agent is and where player is
         
         if (mazeinfo.seen[ycoord][xcoord]){ // Only increase the cost of a seen cell ONCE...
             // and to increase cost of where agent is NOW (to check next time) instead of increasing 
             // cost of potential locs and getting stuck because you'll trap yourself with higher cost potential locs
             mazeinfo.costs[ycoord][xcoord]++;
-            //mazeinfo.timesVisited[ycoord][xcoord]++;
+            mazeinfo.timesVisited[ycoord][xcoord]++;
         }
         //while (ycoord != playerY && xcoord != playerX){ // Work out the entire route each time?
             if (maze[ycoord][xcoord].northwall.isBroken()){ // If we can move North, how much does North cost?
