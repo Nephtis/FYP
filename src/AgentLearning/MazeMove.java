@@ -359,127 +359,133 @@ public class MazeMove {
         if (mazeinfo.seen[ycoord][xcoord]){ // Only increase the cost of a seen cell ONCE...
             // and to increase cost of where agent is NOW (to check next time) instead of increasing 
             // cost of potential locs and getting stuck because you'll trap yourself with higher cost potential locs
-            mazeinfo.costs[ycoord][xcoord]++;
+            //mazeinfo.costs[ycoord][xcoord]++;
             mazeinfo.timesVisited[ycoord][xcoord]++;
         }
         //while (ycoord != playerY && xcoord != playerX){ // Work out the entire route each time?
             if (maze[ycoord][xcoord].northwall.isBroken()){ // If we can move North, how much does North cost?
-                // If we move North, how many walls does that cell have?
-                tempY--;
-                dist = (tempY - playerY) + (tempX - playerX);
+                tempY = ycoord - 1; // Pretend we've moved there
+                dist = (xcoord - playerX) + (tempY - playerY); // Cartesian distance
                 if (dist < 0){ // e.g. if the distance is the "other way around" and negative, we just want the actual number of cells between us and player
                     dist = dist + (-dist * 2); // e.g. if dist is -3, we just want 3, so: -3 + (--3 * 2), -- turns into +, so this ends up as -3 + 6 = 3
                 }
                 costNORTH = dist; 
-                brokenWalls = FindBrokenWalls(tempY, tempX);
-                costNORTH = costNORTH + brokenWalls.length; // More walls = worse?
+                //brokenWalls = FindBrokenWalls(tempY, tempX); // How many walls does that cell have?
+                //costNORTH = costNORTH + brokenWalls.length; // More walls = worse?
                 if (mazeinfo.seen[tempY][xcoord]){
                     //costNORTH = costNORTH + mazeinfo.costs[tempY][xcoord];
-                    costNORTH++;
+                    //costNORTH += mazeinfo.timesVisited[tempY][xcoord];
                 }
                 //System.out.println("North cost is " + costNORTH);
                 // Assign to cost array
-                mazeinfo.costs[tempY][xcoord] = costNORTH;
-                tempY = ycoord; // Reset tempY
+                
+                System.out.println("NORTH available: " + costNORTH);
             } else { 
                 costNORTH = 100; // Assign an abnormally large cost to show we don't want to go through the wall - otherwise when we skip a wall because it's not broken, the "cost" will remain at 0 (which is "less" than the others and so "better")
             }
             costs[0] = costNORTH; // Add to costs array
+            //mazeinfo.costs[tempY][xcoord] = costNORTH;
             if (maze[ycoord][xcoord].eastwall.isBroken()){ // Not "else if" because we want to look at all potential directions and weigh their cost
-                tempX++;
-                dist = (tempX - playerX) + (tempY - playerY);
+                tempX = xcoord + 1;
+                dist = (tempX - playerX) + (ycoord - playerY);
                 if (dist < 0){
                     dist = dist + (-dist * 2);
                 }
                 costEAST = dist; 
-                brokenWalls = FindBrokenWalls(tempY, tempX);
-                costEAST = costEAST + brokenWalls.length;
+                //brokenWalls = FindBrokenWalls(tempY, tempX);
+                //costEAST = costEAST + brokenWalls.length;
                 if (mazeinfo.seen[ycoord][tempX]){
                     //costEAST = costEAST + mazeinfo.costs[ycoord][tempX];
-                    costEAST++;
+                    //costEAST += mazeinfo.timesVisited[ycoord][tempX];
                 }
                 //System.out.println("East cost is " + costEAST);
-                mazeinfo.costs[ycoord][tempX] = costEAST;
-                tempX = xcoord;
+                System.out.println("EAST available: " + costEAST);
             } else { 
                 costEAST = 100;
             }
             costs[1] = costEAST;
+            //mazeinfo.costs[ycoord][tempX] = costEAST;
             if (maze[ycoord][xcoord].southwall.isBroken()){
-                tempY++;
-                dist = (tempY - playerY) + (tempX - playerX);
+                tempY = ycoord + 1;
+                dist = (xcoord - playerX) + (tempY - playerY);
                 if (dist < 0){
                     dist = dist + (-dist * 2);
                 }
                 costSOUTH = dist; 
-                brokenWalls = FindBrokenWalls(tempY, tempX);
-                costSOUTH = costSOUTH + brokenWalls.length;
+                //brokenWalls = FindBrokenWalls(tempY, tempX);
+                //costSOUTH = costSOUTH + brokenWalls.length;
                 if (mazeinfo.seen[tempY][xcoord]){
                     //costSOUTH = costSOUTH + mazeinfo.costs[tempY][xcoord];
-                    costSOUTH++;
+                    
+                    //costSOUTH += mazeinfo.timesVisited[tempY][xcoord];
                 }
                 //System.out.println("South cost is " + costSOUTH);
-                mazeinfo.costs[tempY][xcoord] = costSOUTH;
-                tempY = ycoord;
+                System.out.println("SOUTH available: " + costSOUTH);
             } else { 
                 costSOUTH = 100;
             }
+            //mazeinfo.costs[tempY][xcoord] = costSOUTH;
             costs[2] = costSOUTH;
             if (maze[ycoord][xcoord].westwall.isBroken()){
-                tempX--;
-                dist = (tempX - playerX) + (tempY - playerY);
+                tempX = xcoord - 1;
+                dist = (tempX - playerX) + (ycoord - playerY);
                 if (dist < 0){
                     dist = dist + (-dist * 2);
                 }
                 costWEST = dist; 
-                brokenWalls = FindBrokenWalls(tempY, tempX);
-                costWEST = costWEST + brokenWalls.length;
+                //brokenWalls = FindBrokenWalls(tempY, tempX);
+                //costWEST = costWEST + brokenWalls.length;
                 if (mazeinfo.seen[ycoord][tempX]){
                     //costWEST = costWEST + mazeinfo.costs[ycoord][tempX];
-                    costWEST++;
+                    //costWEST += mazeinfo.timesVisited[ycoord][tempX];
                 }
                 //System.out.println("West cost is " + costWEST);
-                mazeinfo.costs[ycoord][tempX] = costWEST;
-                tempX = xcoord;
+                System.out.println("WEST available: " + costWEST);
             } else { 
                 costWEST = 100;
             }
             costs[3] = costWEST;
+            //mazeinfo.costs[ycoord][tempX] = costWEST;
             // Now find the least cost direction (if two or more have the same cost then just pick the first one)
             int leastCost = costs[0];
             for (int i=0; i<costs.length; i++){
                 if (costs[i] < leastCost){
-                    //System.out.println("Got inside for-if");
+                    System.out.println("Got inside for-if");
                     leastCost = costs[i];
                     leastCostIndex = i;
                 }
             }
+            
             // And move in that direction
             if (leastCostIndex == 0){ // North has the least cost
                 //System.out.println("Trying to move North");
                 --ycoord;
                 move = 1;
                 movelist.Push(ycoord, xcoord, move);
+                mazeinfo.costs[ycoord][xcoord] = leastCost;
             } else if (leastCostIndex == 1){ // East has the least cost
                 //System.out.println("Trying to move East");
                 ++xcoord;
                 move = 2;
                 movelist.Push(ycoord, xcoord, move);
+                mazeinfo.costs[ycoord][xcoord] = leastCost;
             } else if (leastCostIndex == 2){ // South has the least cost
                 //System.out.println("Trying to move South");
                 ++ycoord;
                 move = 3;
                 movelist.Push(ycoord, xcoord, move);
+                mazeinfo.costs[ycoord][xcoord] = leastCost;
             } else if (leastCostIndex == 3){ // West has the least cost
                 //System.out.println("Trying to move West");
                 --xcoord;
                 move = 4;
                 movelist.Push(ycoord, xcoord, move);
+                mazeinfo.costs[ycoord][xcoord] = leastCost;
             } else {
                 System.out.println("ERROR"); // Just in case...
             }
-            mazeinfo.seen[ycoord][xcoord] = true;
-            mazeinfo.timesVisited[ycoord][xcoord]++;
+            //mazeinfo.seen[ycoord][xcoord] = true;
+            //mazeinfo.timesVisited[ycoord][xcoord]++;
         //}
     }
     
@@ -787,8 +793,12 @@ public class MazeMove {
     // so as to avoid having to constantly generate random numbers and potentially sit there until the timer runs out
     // because we keep generating a number that corresponds to an unbroken Wall (especially prevalent in dead-ends where there's only one way out)
     public int[] FindBrokenWalls(int ycoord, int xcoord){
-        Vector<Integer> vct = new Vector<Integer>(); // Vector to store the broken Wall reference ints (variable size so easier to do this than an array whilst "growing")
-        int brokenWalls[]; // Array to be copied into and returned at the end so we can access it normally elsewhere
+        // Vector to store the broken Wall reference ints (variable size so 
+        // easier to do this than an array whilst "growing")
+        Vector<Integer> vct = new Vector<Integer>(); 
+        // Array to be copied into and returned at the end so we can access it 
+        // normally elsewhere
+        int brokenWalls[]; 
         
         if (maze[ycoord][xcoord].northwall.isBroken()){
             vct.add(1); // Add a reference to the Wall that's broken
@@ -803,12 +813,73 @@ public class MazeMove {
             vct.add(4);
         }
         
-        brokenWalls = new int[vct.size()]; // Initialize the brokenWalls array to be the size of the vector (i.e. how many Walls are broken)
+        // Initialize the brokenWalls array to be the size of the vector 
+        // (i.e. how many Walls are broken)
+        brokenWalls = new int[vct.size()]; 
         for (int i=0; i<brokenWalls.length; i++){ 
             brokenWalls[i] = vct.get(i); // Copy the elements in
         }
         
         return brokenWalls;
+    }
+    
+    // Is there a wall between me and the player?
+    public boolean isPlayerTargetable(int playerY, int playerX){
+        MoveInfo currentCell = movelist.Peek();
+        if (currentCell.x == playerX && currentCell.y < playerY){ // Player is directly to the South
+            int y = currentCell.y;
+            int x = currentCell.x;
+            while (maze[y][x].southwall.isBroken()){
+                ++y;
+                if (y == playerY){
+                    System.out.println("Target visible to the South");
+                    return true; // Player is targetable
+                }
+            }
+            System.out.println("Target not visible");
+            return false; // Player is not targetable          
+        }
+        else if (currentCell.x == playerX && currentCell.y > playerY){ // Player is directly to the North
+            int y = currentCell.y;
+            int x = currentCell.x;
+            while (maze[y][x].northwall.isBroken()){
+                --y;
+                if (y == playerY){
+                    System.out.println("Target visible to the North");
+                    return true; // Player is targetable
+                }
+            }
+            System.out.println("Target not visible");
+            return false; // Player is not targetable
+        }
+        else if (currentCell.x > playerX && currentCell.y == playerY){ // Player is directly to the West
+            int y = currentCell.y;
+            int x = currentCell.x;
+            while (maze[y][x].westwall.isBroken()){
+                --x;
+                if (x == playerX){
+                    System.out.println("Target visible to the West");
+                    return true; // Player is targetable  
+                }
+            }
+            System.out.println("Target not visible");
+            return false; // Player is not targetable
+        }
+        else if (currentCell.x < playerX && currentCell.y == playerY){ // Player is directly to the East
+            int y = currentCell.y;
+            int x = currentCell.x;
+            while (maze[y][x].eastwall.isBroken()){
+                ++x;
+                if (x == playerX){
+                    System.out.println("Target visible to the East");
+                    return true; // Player is targetable
+                }
+            }
+            System.out.println("Target not visible");
+            return false; // Player is not targetable
+        }
+        System.out.println("Target not visible");
+        return false;
     }
     
     // Force enemy to be at a certain position (used in reset)

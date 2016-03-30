@@ -108,8 +108,8 @@ public class MazeView extends JFrame implements KeyListener {
         try{
             /*AgentController ac = mainContainer.createNewAgent("enemy1", 
             "AgentLearning.Enemy", params); // With the params declared earlier
-            ac.start();*/
-            /*AgentController ac2 = mainContainer.createNewAgent("enemy2", "AgentLearning.Enemy", params);
+            ac.start();
+            AgentController ac2 = mainContainer.createNewAgent("enemy2", "AgentLearning.Enemy", params);
             ac2.start();
             AgentController ac3 = mainContainer.createNewAgent("enemy3", "AgentLearning.Enemy", params);
             ac3.start();
@@ -315,9 +315,9 @@ public class MazeView extends JFrame implements KeyListener {
         }
         
         //System.out.println("Costs:");
-        for (int i = 0; i < mazeinfo.timesVisited.length; i++){
-            for (int j = 0; j < mazeinfo.timesVisited.length; j++){ // i and j are the same (costs has the same width and height)
-                System.out.print(mazeinfo.timesVisited[i][j] + " ");
+        for (int i = 0; i < mazeinfo.costs.length; i++){
+            for (int j = 0; j < mazeinfo.costs.length; j++){ // i and j are the same (costs has the same width and height)
+                System.out.print(mazeinfo.costs[i][j] + " ");
             }
             System.out.println(""); // new line for every row
         }

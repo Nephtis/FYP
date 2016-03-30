@@ -55,26 +55,36 @@ public class Boss extends Agent {
             if (!(view.running)) {
                 doDelete();
             }
-            System.out.println("Times visited: " + mazeinfo.timesVisited[moves.getYCoord()][moves.getXCoord()]);
+            //System.out.println("Times visited: " + mazeinfo.timesVisited[moves.getYCoord()][moves.getXCoord()]);
             
-            if (counter == 0){
-                moves.AStarPursuePlayer(player.GetLocation().y, player.GetLocation().x, mazeinfo);
-            } else {
-                moves.MoveRandomly(); // Just go anywhere, try to get out
-                counter++;
-                if (counter == 5){ // Moved enough randomly
-                    counter = 0;
-                }
+            //if (counter < 3){
+            if (!moves.isPlayerTargetable(player.GetLocation().y, player.GetLocation().x)){ // If target is visible to the agent
+                moves.AStarPursuePlayer(player.GetLocation().y, player.GetLocation().x, mastermazeinfo);
+            }
+            else {
+                moves.BlindlyPursuePlayer(player.GetLocation().y, player.GetLocation().x);
             }
             
+            /*} else {
+                moves.BlindlyPursuePlayer(player.GetLocation().y, player.GetLocation().x); // Blindly pursue
+                counter++;
+                if (counter == 6){ // Moved enough randomly
+                    counter = 0;
+                }
+            }*/
+               
+            
+                // Maybe do blindly pursue instead of random.......................................
+                // and maybe "if there are walls between me and player - A*, if not blindly pursue"?
+                
             // Difference in this and in moves.get... (what?)
             if (mazeinfo.timesVisited[moves.getYCoord()][moves.getXCoord()] > 3){ // Am I dithering around in one area?
-                System.out.println("randomly");
-                counter = 1;
-            }    
+                System.out.println("blindly");
+                counter++;
+            }   
             
-            //view.paintCosts(moves.GetLocation(), moves, mazeinfo);
-            view.paintBoss(moves.GetLocation(), moves, mazeinfo);
+            //view.paintCosts(moves.GetLocation(), moves, mastermazeinfo);
+            view.paintBoss(moves.GetLocation(), moves, mastermazeinfo);
 
             if ((moves.getYCoord() == player.GetLocation().y) && (moves.getXCoord() == player.GetLocation().x)) {
                 view.paintEnemy(moves.GetLocation(), moves); // re-paint so we're not left with an afterimage
