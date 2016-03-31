@@ -106,7 +106,7 @@ public class MazeView extends JFrame implements KeyListener {
         ContainerController mainContainer = rt.createMainContainer(p); 
         
         try{
-            /*AgentController ac = mainContainer.createNewAgent("enemy1", 
+            AgentController ac = mainContainer.createNewAgent("enemy1", 
             "AgentLearning.Enemy", params); // With the params declared earlier
             ac.start();
             AgentController ac2 = mainContainer.createNewAgent("enemy2", "AgentLearning.Enemy", params);
@@ -116,10 +116,10 @@ public class MazeView extends JFrame implements KeyListener {
             AgentController ac4 = mainContainer.createNewAgent("enemy4", "AgentLearning.Enemy", params);
             ac4.start();
             AgentController ac5 = mainContainer.createNewAgent("enemy5", "AgentLearning.Enemy", params);
-            ac5.start();*/
-            AgentController ac = mainContainer.createNewAgent("boss", 
+            ac5.start();
+            /*AgentController ac = mainContainer.createNewAgent("boss", 
             "AgentLearning.Boss", params);
-            ac.start();
+            ac.start();*/
         } catch (StaleProxyException e){
             System.out.println("StaleProxyException caught...");
         }
@@ -199,26 +199,6 @@ public class MazeView extends JFrame implements KeyListener {
             }
         }
     }
-    
-    // For debugging purposes (will probably be removed in final release)
-    /*
-    public final void paintLineOfSight(MazeMove mazemove){
-        Graphics g = getGraphics();
-        int mx = (scalex * 4) / 8;
-        int my = (scaley * 4) / 8;
-        MoveInfo[] lineofsight = mazemove.getLineOfSight();
-        if (lineofsight != null && lineofsight.length != 0){
-            for (int i=0; i<lineofsight.length; i++){
-                if (lineofsight[i] != null){
-                    //System.out.println("Drawing line of sight, i is " + i);
-                    x = (lineofsight[i].x * scalex) + 20;
-                    y = TOP + 20 + lineofsight[i].y * scaley;
-                    g.drawImage(jeep, x + (scalex / 2), y + (scaley / 2), mx, my, null);
-                }
-            }
-        }
-    }
-    */
     
     // Draws the enemies
     public final void paintEnemy(MoveInfo current, MazeMove mazemove){

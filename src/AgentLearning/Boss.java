@@ -58,10 +58,11 @@ public class Boss extends Agent {
             //System.out.println("Times visited: " + mazeinfo.timesVisited[moves.getYCoord()][moves.getXCoord()]);
             
             //if (counter < 3){
-            if (!moves.isPlayerTargetable(player.GetLocation().y, player.GetLocation().x)){ // If target is visible to the agent
+            if (!moves.isTargetable(player.GetLocation().y, player.GetLocation().x)){ // If player is not visible to the agent
                 moves.AStarPursuePlayer(player.GetLocation().y, player.GetLocation().x, mastermazeinfo);
+                // Head for last known loc...
             }
-            else {
+            else { // If the player is visible
                 moves.BlindlyPursuePlayer(player.GetLocation().y, player.GetLocation().x);
             }
             

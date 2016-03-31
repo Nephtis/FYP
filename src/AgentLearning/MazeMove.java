@@ -140,7 +140,6 @@ public class MazeMove {
     
     // Move at random within a certain area
     public void PatrolArea(PrimMazeInfo mastermazeinfo){
-            this.LookAhead();
             Random randomGenerator = new Random();
             MoveInfo currentCell = movelist.Pop();
             int[] brokenWalls; // Stores ints corresponding to only the possible Walls (broken) which we will select from (i.e. ignoring unbroken ones)
@@ -529,11 +528,6 @@ public class MazeMove {
         movelist.Push(ycoord, xcoord, move);
     }
     
-    // "Sixth sense" ability, will calculate best route to player and move there
-    public void DepthFirstPursuePlayer(){
-        
-    }
-    
     // Are we just dithering around in one area?
     public boolean dithering(){
         MoveInfo currentCell = movelist.Peek();
@@ -542,88 +536,6 @@ public class MazeMove {
         }
         return false;
     }
-    
-    public void LookAhead(){
-        // Add the next (maximum of 3 if we don't encounter any Walls) Cells ahead to the lineofsight TrackInfo
-        // then remove/overwrite when we change loc/direction - so we're only looking in one direction at a time
-
-        MoveInfo currentCell = movelist.Peek(); // Only peek because we're not actually moving here, we just need to know where we are
-        // Don't need to 'pop' here - done in GetLineOfSight()
-        int xcoord = currentCell.x;
-        int ycoord = currentCell.y;
-        int move = currentCell.move;
-        if ((move == MoveInfo.NORTH) && (maze[ycoord][xcoord].northwall.isBroken())) { // If there is a clear path to the NORTH
-            //System.out.println("Look up");
-            --ycoord;   // We can look up
-            lineofsight.Push(ycoord, xcoord, move); // OR instead of pushing every time, just push the final (max) coord and say 'from here to the max coord, is player in here?'
-            System.out.println("LookAhead: NORTH pushed y "+ ycoord +" x "+xcoord);
-            if (maze[ycoord][xcoord].northwall.isBroken()){ // Can we look 'further' up?       
-                --ycoord;
-                lineofsight.Push(ycoord, xcoord, move);
-                //System.out.println("LookAhead: NORTH inside if1, pushed y "+ ycoord +" x "+xcoord);
-                if (maze[ycoord][xcoord].northwall.isBroken()){ // Once more...
-                    --ycoord;
-                    lineofsight.Push(ycoord, xcoord, move);
-                    //System.out.println("LookAhead: NORTH inside if2, pushed y "+ ycoord +" x "+xcoord);
-                }
-            }
-        }
-        if ((move == MoveInfo.SOUTH) && (maze[ycoord][xcoord].southwall.isBroken())) { // If there is a clear path to the SOUTH
-            //System.out.println("Look down");
-            ++ycoord;   // We can look up
-            lineofsight.Push(ycoord, xcoord, move);
-            System.out.println("LookAhead: SOUTH pushed y "+ ycoord +" x "+xcoord);
-            if (maze[ycoord][xcoord].southwall.isBroken()){  
-                ++ycoord;
-                lineofsight.Push(ycoord, xcoord, move);
-                //System.out.println("LookAhead: SOUTH inside if1, pushed y "+ ycoord +" x "+xcoord);
-                if (maze[ycoord][xcoord].southwall.isBroken()){
-                    ++ycoord;
-                    lineofsight.Push(ycoord, xcoord, move);
-                    //System.out.println("LookAhead: SOUTH inside if2, pushed y "+ ycoord +" x "+xcoord);
-                }
-            }
-        }
-        if ((move == MoveInfo.EAST) && (maze[ycoord][xcoord].eastwall.isBroken())) { // If there is a clear path to the EAST
-            //System.out.println("Look right");
-            ++xcoord;   // We can look right
-            lineofsight.Push(ycoord, xcoord, move);
-            System.out.println("LookAhead: EAST pushed y "+ ycoord +" x "+xcoord);
-            if (maze[ycoord][xcoord].eastwall.isBroken()){  
-                ++xcoord;
-                lineofsight.Push(ycoord, xcoord, move);
-                //System.out.println("LookAhead: EAST inside if1, pushed y "+ ycoord +" x "+xcoord);
-                if (maze[ycoord][xcoord].eastwall.isBroken()){
-                    ++xcoord;
-                    lineofsight.Push(ycoord, xcoord, move);
-                    //System.out.println("LookAhead: EAST inside if2, pushed y "+ ycoord +" x "+xcoord);
-                }
-            }
-        }
-        if ((move == MoveInfo.WEST) && (maze[ycoord][xcoord].westwall.isBroken())) { // If there is a clear path to the WEST
-            //System.out.println("Look left");
-            --xcoord;   // We can look left
-            lineofsight.Push(ycoord, xcoord, move);
-            System.out.println("LookAhead: WEST pushed y "+ ycoord +" x "+xcoord);
-            if (maze[ycoord][xcoord].westwall.isBroken()){  
-                --xcoord;
-                lineofsight.Push(ycoord, xcoord, move);
-                //System.out.println("LookAhead: WEST inside if1, pushed y "+ ycoord +" x "+xcoord);
-                if (maze[ycoord][xcoord].westwall.isBroken()){
-                    --xcoord;
-                    lineofsight.Push(ycoord, xcoord, move);
-                    //System.out.println("LookAhead: WEST inside if2, pushed y "+ ycoord +" x "+xcoord);
-                }
-            }
-        }
-}
-//        if (!(lineofsight.length == 0)){
-//            for (int i=0; i<lineofsight.length; i++){
-//                //System.out.println("LookAhead: lineofsight["+i+"]" + lineofsight.Peek().y + ", x " + lineofsight.Peek().x);
-//                //lineofsight.Pop();
-//            }
-//        }
-        //lineofsight.Push(ycoord, xcoord, move); // Push the furthest value we got to (1-3 Cells ahead)
     
     public void SenseNearby(){
         // Add the surrounding cells to a list which we can "sense" - i.e. detect if player is nearby (but don't trigger an alert)
@@ -678,7 +590,6 @@ public class MazeMove {
     
     // NOT IMPLEMENTED
     public void SearchArea(int startX, int startY){
-        this.LookAhead();
         // y, x, m and n will be calculated outside depending on Enemy's current location, i.e. search within a 1-2 block radius of their current pos
         // covering EVERY cell,or just hang around there
         MoveInfo currentCell = movelist.Pop(); // Add old pos to onebehind movelist so it gets 'cleaned' on next paint
@@ -823,63 +734,64 @@ public class MazeMove {
         return brokenWalls;
     }
     
-    // Is there a wall between me and the player?
-    public boolean isPlayerTargetable(int playerY, int playerX){
+    // Is there a wall between me and the target? Target could be a player, or player's last known position.
+    public boolean isTargetable(int targetY, int targetX){
         MoveInfo currentCell = movelist.Peek();
-        if (currentCell.x == playerX && currentCell.y < playerY){ // Player is directly to the South
+
+        if (currentCell.x == targetX && currentCell.y < targetY){ // Target is directly to the South
             int y = currentCell.y;
             int x = currentCell.x;
             while (maze[y][x].southwall.isBroken()){
                 ++y;
-                if (y == playerY){
+                if (y == targetY){
                     System.out.println("Target visible to the South");
-                    return true; // Player is targetable
+                    return true; // is targetable
                 }
             }
             System.out.println("Target not visible");
-            return false; // Player is not targetable          
+            return false; // is not targetable          
         }
-        else if (currentCell.x == playerX && currentCell.y > playerY){ // Player is directly to the North
+        else if (currentCell.x == targetX && currentCell.y > targetY){ // Target is directly to the North
             int y = currentCell.y;
             int x = currentCell.x;
             while (maze[y][x].northwall.isBroken()){
                 --y;
-                if (y == playerY){
+                if (y == targetY){
                     System.out.println("Target visible to the North");
-                    return true; // Player is targetable
+                    return true; // is targetable
                 }
             }
             System.out.println("Target not visible");
-            return false; // Player is not targetable
+            return false; // is not targetable
         }
-        else if (currentCell.x > playerX && currentCell.y == playerY){ // Player is directly to the West
+        else if (currentCell.x > targetX && currentCell.y == targetY){ // Target is directly to the West
             int y = currentCell.y;
             int x = currentCell.x;
             while (maze[y][x].westwall.isBroken()){
                 --x;
-                if (x == playerX){
+                if (x == targetX){
                     System.out.println("Target visible to the West");
-                    return true; // Player is targetable  
+                    return true; // is targetable  
                 }
             }
             System.out.println("Target not visible");
-            return false; // Player is not targetable
+            return false; // is not targetable
         }
-        else if (currentCell.x < playerX && currentCell.y == playerY){ // Player is directly to the East
+        else if (currentCell.x < targetX && currentCell.y == targetY){ // Target is directly to the East
             int y = currentCell.y;
             int x = currentCell.x;
             while (maze[y][x].eastwall.isBroken()){
                 ++x;
-                if (x == playerX){
+                if (x == targetX){
                     System.out.println("Target visible to the East");
-                    return true; // Player is targetable
+                    return true; // is targetable
                 }
             }
             System.out.println("Target not visible");
-            return false; // Player is not targetable
+            return false; // is not targetable
         }
         System.out.println("Target not visible");
-        return false;
+        return false; // is not targetable
     }
     
     // Force enemy to be at a certain position (used in reset)

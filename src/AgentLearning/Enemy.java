@@ -129,7 +129,7 @@ public class Enemy extends Agent{
         MazeView view = (MazeView) args[2];
         PlayerMazeMove player = (PlayerMazeMove) args[3];
         
-        MoveInfo[] lineofsight = new MoveInfo[3];
+        //MoveInfo[] lineofsight = new MoveInfo[3];
         MoveInfo[] sensearea = new MoveInfo[4];
         
         protected void onTick(){
@@ -211,40 +211,29 @@ public class Enemy extends Agent{
                     //view.PrintGUIMessage("normal");
 
                     // Check if player is in line of sight
-                    // (Currently greater than 1 Cell away i.e. not next to enemy, also think about move direction being deceptive i.e. facing wrong way)
-                    lineofsight = moves.getLineOfSight();
-                    //if (lineofsight != null && lineofsight.length != 0){
-                        for (int i=0; i<lineofsight.length; i++) {
-                            if (lineofsight[i] != null) {
-                                //System.out.println("Enemy: lineofsight length is " + lineofsight.length);
-                                //System.out.println("Enemy: lineofsight["+ i +"] y " + lineofsight[i].y + ", x " + lineofsight[i].x);
-                                //System.out.println("Enemy: player y " + player.GetLocation().y + ", x " + player.GetLocation().x);
-                                if ((lineofsight[i].y == player.GetLocation().y) && (lineofsight[i].x == player.GetLocation().x)) {
-                                    // ALERT MODE
-                                    // Send alert message to other agents
-                                    ACLMessage alertmsg = new ACLMessage(ACLMessage.INFORM);
-                                    for (int j=0; j<otherAgents.length; j++){
-                                        alertmsg.addReceiver(otherAgents[j]);
-                                    }
-                                    alertmsg.setConversationId("alert mode");
-                                    alertmsg.setReplyWith("inform"+System.currentTimeMillis());
-                                    myAgent.send(alertmsg);
-                                    System.out.println("    "+getAID().getName()+": Player in my line of sight! Waiting 1 secs (so player can move away)");
-                                    view.alertmode = true;
-                                    view.PrintGUIMessage("alert"); // Display the alert message on the GUI
-                                    // Then send a message to other agents so they don't also do it (i.e. it only gets painted once)
-                                    try {
-                                        Thread.sleep(500); // This has to be surrounded in a try/catch
-                                    } catch (InterruptedException ex) {
-                                        Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
-                                    }
-                                    System.out.println("    "+getAID().getName()+": Done waiting, go to alert mode!");
-                                    step = 1; // change to different 'action'
-                                    break;
-                                }
+                        if (moves.isTargetable(player.GetLocation().y, player.GetLocation().x)) {
+                            // SPOTTED PLAYER, ALERT MODE
+                            // Send alert message to other agents
+                            ACLMessage alertmsg = new ACLMessage(ACLMessage.INFORM);
+                            for (int j=0; j<otherAgents.length; j++){
+                                alertmsg.addReceiver(otherAgents[j]);
                             }
-                        //}
-                    }
+                            alertmsg.setConversationId("alert mode");
+                            alertmsg.setReplyWith("inform"+System.currentTimeMillis());
+                            myAgent.send(alertmsg);
+                            System.out.println("    "+getAID().getName()+": Player in my line of sight! Waiting 1 secs (so player can move away)");
+                            view.alertmode = true;
+                            view.PrintGUIMessage("alert"); // Display the alert message on the GUI
+                            // Then send a message to other agents so they don't also do it (i.e. it only gets painted once)
+                            try {
+                                Thread.sleep(500); // This has to be surrounded in a try/catch
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            System.out.println("    "+getAID().getName()+": Done waiting, go to alert mode!");
+                            step = 1; // change to different 'action'
+                            break;
+                        }
                     
                 break;
                     // ALERT CASE ----------------------------------------------------------------------------------------------------------------------------------------
@@ -278,7 +267,13 @@ public class Enemy extends Agent{
                         try {
                             //moves.MoveToCoords(player.GetLocation().y, player.GetLocation().x);
                             //moves.PursuePlayer(player.GetLocation().y, player.GetLocation().x);
-                            moves.AStarPursuePlayer(player.GetLocation().y, player.GetLocation().x, mazeinfo);
+                            if (!moves.isTargetable(player.GetLocation().y, player.GetLocation().x)){ // If player is not visible to the agent
+                                moves.AStarPursuePlayer(player.GetLocation().y, player.GetLocation().x, mastermazeinfo);
+                            // Head for last known loc...
+                            }
+                            else { // If the player is visible
+                                moves.BlindlyPursuePlayer(player.GetLocation().y, player.GetLocation().x);
+                            }
                             Thread.sleep(500);
                         } catch (InterruptedException ex) {
                             Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
@@ -364,39 +359,35 @@ public class Enemy extends Agent{
                             break;
                         }
                         
-                        lineofsight = moves.getLineOfSight();
-                        for (int i=0; i<lineofsight.length; i++) {
-                            if (lineofsight[i] != null) {
-                                if ((lineofsight[i].y == player.GetLocation().y) && (lineofsight[i].x == player.GetLocation().x)) {
-                                    // ALERT MODE
-                                    // Send alert message to other agents
-                                    ACLMessage alertmsg = new ACLMessage(ACLMessage.INFORM);
-                                    for (int j=0; j<otherAgents.length; j++){
-                                        alertmsg.addReceiver(otherAgents[j]);
-                                    }
-                                    alertmsg.setConversationId("alert mode");
-                                    alertmsg.setReplyWith("inform"+System.currentTimeMillis());
-                                    myAgent.send(alertmsg);
-                                    System.out.println("    "+getAID().getName()+": Player in my line of sight! Waiting 1 secs (so player can move away)");
-                                    view.alertmode = true;
-                                    view.PrintGUIMessage("alert"); // Display the alert message on the GUI
-                                    try {
-                                        Thread.sleep(500); // This has to be surrounded in a try/catch
-                                    } catch (InterruptedException ex) {
-                                        Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
-                                    }
-                                    System.out.println("    "+getAID().getName()+": Done waiting, go to alert mode!");
-                                    step = 1; // change to different 'action'
-                                    break;
-                                }
+                        if (moves.isTargetable(player.GetLocation().y, player.GetLocation().x)) {
+                            // ALERT MODE
+                            // Send alert message to other agents
+                            ACLMessage alertmsg = new ACLMessage(ACLMessage.INFORM);
+                            for (int j=0; j<otherAgents.length; j++){
+                                alertmsg.addReceiver(otherAgents[j]);
                             }
+                            alertmsg.setConversationId("alert mode");
+                            alertmsg.setReplyWith("inform"+System.currentTimeMillis());
+                            myAgent.send(alertmsg);
+                            System.out.println("    "+getAID().getName()+": Player in my line of sight! Waiting 1 secs (so player can move away)");
+                            view.alertmode = true;
+                            view.PrintGUIMessage("alert"); // Display the alert message on the GUI
+                            try {
+                                Thread.sleep(500); // This has to be surrounded in a try/catch
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            System.out.println("    "+getAID().getName()+": Done waiting, go to alert mode!");
+                            step = 1; // change to different 'action'
+                            break;
                         }
+                        
+                        i_search = 0;
+                        mazeinfo.resetSeen();
+                        mazeinfo.resetCosts();
+                        step = 3;
+                        break;
                     }
-                    i_search = 0;
-                    mazeinfo.resetSeen();
-                    mazeinfo.resetCosts();
-                    step = 3;
-                    break;
                     
                 case 3:
                     view.searchmode = false;
@@ -446,39 +437,33 @@ public class Enemy extends Agent{
                             break;
                         }
                         
-                        lineofsight = moves.getLineOfSight();
-                        for (int i=0; i<lineofsight.length; i++) {
-                            if (lineofsight[i] != null) {
-                                if ((lineofsight[i].y == player.GetLocation().y) && (lineofsight[i].x == player.GetLocation().x)) {
-                                    // ALERT MODE
-                                    // Send alert message to other agents
-                                    ACLMessage alertmsg = new ACLMessage(ACLMessage.INFORM);
-                                    for (int j=0; j<otherAgents.length; j++){
-                                        alertmsg.addReceiver(otherAgents[j]);
-                                    }
-                                    alertmsg.setConversationId("alert mode");
-                                    alertmsg.setReplyWith("inform"+System.currentTimeMillis());
-                                    myAgent.send(alertmsg);
-                                    System.out.println("    "+getAID().getName()+": Player in my line of sight! Waiting 1 secs (so player can move away)");
-                                    view.alertmode = true;
-                                    view.PrintGUIMessage("alert"); // Display the alert message on the GUI
-                                    try {
-                                        Thread.sleep(500); // This has to be surrounded in a try/catch
-                                    } catch (InterruptedException ex) {
-                                        Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
-                                    }
-                                    System.out.println("    "+getAID().getName()+": Done waiting, go to alert mode!");
-                                    step = 1; // change to different 'action'
-                                    break;
-                                }
+                        if (moves.isTargetable(player.GetLocation().y, player.GetLocation().x)) {
+                            // ALERT MODE
+                            // Send alert message to other agents
+                            ACLMessage alertmsg = new ACLMessage(ACLMessage.INFORM);
+                            for (int j=0; j<otherAgents.length; j++){
+                                alertmsg.addReceiver(otherAgents[j]);
                             }
+                            alertmsg.setConversationId("alert mode");
+                            alertmsg.setReplyWith("inform"+System.currentTimeMillis());
+                            myAgent.send(alertmsg);
+                            System.out.println("    "+getAID().getName()+": Player in my line of sight! Waiting 1 secs (so player can move away)");
+                            view.alertmode = true;
+                            view.PrintGUIMessage("alert"); // Display the alert message on the GUI
+                            try {
+                                Thread.sleep(500); // This has to be surrounded in a try/catch
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            System.out.println("    "+getAID().getName()+": Done waiting, go to alert mode!");
+                            step = 1; // change to different 'action'
+                            break;
                         }
-                    }
                     //step = 0; // All clear, return to normal state (patrol)
                     step = 0;
                     break; 
+                }
             }
-        }
-    } // End of inner class Movement
-    
-}
+        } // End of inner class Movement
+    } // End of onTick()
+} // End of Enemy class
