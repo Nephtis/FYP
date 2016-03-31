@@ -11,18 +11,19 @@ public class PrimMazeInfo {
     public int timesVisited[][];
     private int width, height;
     private int startM, startN;
-    private int targetM, targetN;
+    private int targetY, targetX;
+    private int playerlastknownY, playerlastknownX;
     public Cell[][] maze;
     
     public int patrolcosts[][];
 
     // Constructor
-    public PrimMazeInfo(Cell[][] maze, int startM, int startN, int targetM, int targetN) {
+    public PrimMazeInfo(Cell[][] maze, int startM, int startN, int targetY, int targetX) {
         this.maze = maze;
         this.startM = startM;
         this.startN = startN;
-        this.targetM = targetM;
-        this.targetN = targetN;
+        this.targetY = targetY;
+        this.targetX = targetX;
         height = maze.length;
         width = maze[0].length;
         seen = new boolean[height][width];
@@ -102,12 +103,28 @@ public class PrimMazeInfo {
     {
         return this.startN;
     }
-    public int getTargetM()
+    public int getTargetY()
     {
-        return this.targetM;
+        return this.targetY;
     }
-    public int getTargetN()
+    public int getTargetX()
     {
-        return this.targetN;
+        return this.targetX;
+    }
+    public void setPlayerLastKnownY(int y)
+    {
+        this.playerlastknownY = y;
+    }
+    public void setPlayerLastKnownX(int x)
+    {
+        this.playerlastknownX = x;
+    }
+    public int getPlayerLastKnownY()
+    {
+        return playerlastknownY;
+    }
+    public int getPlayerLastKnownX()
+    {
+        return playerlastknownX;
     }
 }

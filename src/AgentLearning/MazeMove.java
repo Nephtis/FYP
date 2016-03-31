@@ -13,8 +13,9 @@ public class MazeMove {
 
     private TrackInfo movelist;
     private TrackInfo onebehindmovelist;
-    private TrackInfo lineofsight; // For enemies 'seeing' a certain distance ahead (e.g. 3 Cells)
     private TrackInfo senselist; // For "sensing" if player is nearby
+    private TrackInfo openCells;
+    private TrackInfo closedCells;
     private Cell[][] maze;
     private PrimMazeInfo mazeinfo;
     private boolean done;
@@ -28,7 +29,6 @@ public class MazeMove {
 
         movelist = new TrackInfo();
         onebehindmovelist = new TrackInfo();
-        lineofsight = new TrackInfo();
         senselist = new TrackInfo();
         done = false;
         movelist.Push(mazeinfo.getStartM(), mazeinfo.getStartN(), MoveInfo.NONE);  // Push start loc onto stack
@@ -73,14 +73,6 @@ public class MazeMove {
         done = true;
     }
     
-    public MoveInfo[] getLineOfSight(){
-        MoveInfo res[] = new MoveInfo[3];
-        for (int i=0; i<=lineofsight.length; i++){
-            res[i] = lineofsight.Pop();
-        }
-        return res; // return an array containing the line of sight coords
-    }
-    
     public MoveInfo[] getSenseList(){
         MoveInfo res[] = new MoveInfo[4];
         for (int i=0; i<=senselist.length; i++){
@@ -90,52 +82,46 @@ public class MazeMove {
     }
 
     // Moves at random, going wherever it can that it hasn't already seen (or been on)
-    // This probably needs to be a behaviour inside enemy1... or does it? Since they will all need to know about "the world" anyway, 
-    // is it worth giving them all their own versions of this? Why not just make it common?
     public void MoveToCoords(int x, int y) {
         if (!done && !movelist.IsEmpty()) {
             MoveInfo cell = movelist.Pop();    // Where Enemy is currently (and what direction)
-           /* if (cell.y == mazeinfo.getTargetM() && cell.x == mazeinfo.getTargetN()) // If at the exit
-            {   
-                movelist.Push(cell.y, cell.x, MoveInfo.NONE);
-            } else { */
-                if (movelist.length >= 0){ // only record previous moves if the Enemy has moved at least once (not counting the start 'move')...why does >= seem to work?
-                    onebehindmovelist.Push(cell.y, cell.x, cell.move); // Push the unchanged values
-                }                  
-                for (int i = 1; i < 5; i++) {
-                    int move = 0;
-                    int xcoord = cell.x;
-                    int ycoord = cell.y;
-                    if (mazeinfo.seen[ycoord][xcoord]){ // If we've been here before
-                        System.out.println("Been here before");
-                    }   
-                    // Where can we move?
-                    if ((i == MoveInfo.NORTH) && (maze[cell.y][cell.x].northwall.isBroken())) {
-                        --ycoord;   // Up
-                        move = 1;
-                    } else if ((i == MoveInfo.EAST) && (maze[cell.y][cell.x].eastwall.isBroken())) {
-                        ++xcoord;   // Right
-                        move = 2;
-                    } else if ((i == MoveInfo.SOUTH) && (maze[cell.y][cell.x].southwall.isBroken())) {
-                        ++ycoord;   // Down
-                        move = 3;
-                    } else if ((i == MoveInfo.WEST) && (maze[cell.y][cell.x].westwall.isBroken())) {
-                        --xcoord;   // Left
-                        move = 4;
-                    }
-                    else {
-                        System.out.println("IDK");
-                    }
-                    // If it's a valid location and Enemy hasn't seen it:
-                    if (!(mazeinfo.maze[ycoord][xcoord].isExplored() && mazeinfo.seen[ycoord][xcoord])) {
-                        mazeinfo.seen[ycoord][xcoord] = true;
-                        movelist.Push(ycoord, xcoord, move);
-                    } 
-                    // ...
-                    
+            
+            if (movelist.length >= 0){ // only record previous moves if the Enemy has moved at least once (not counting the start 'move')...why does >= seem to work?
+                onebehindmovelist.Push(cell.y, cell.x, cell.move); // Push the unchanged values
+            }
+            for (int i = 1; i < 5; i++) {
+                int move = 0;
+                int xcoord = cell.x;
+                int ycoord = cell.y;
+                if (mazeinfo.seen[ycoord][xcoord]){ // If we've been here before
+                    System.out.println("Been here before");
+                }   
+                // Where can we move?
+                if ((i == MoveInfo.NORTH) && (maze[cell.y][cell.x].northwall.isBroken())) {
+                    --ycoord;   // Up
+                    move = i;
+                } if ((i == MoveInfo.EAST) && (maze[cell.y][cell.x].eastwall.isBroken())) {
+                    ++xcoord;   // Right
+                    move = i;
+                } if ((i == MoveInfo.SOUTH) && (maze[cell.y][cell.x].southwall.isBroken())) {
+                    ++ycoord;   // Down
+                    move = i;
+                } if ((i == MoveInfo.WEST) && (maze[cell.y][cell.x].westwall.isBroken())) {
+                    --xcoord;   // Left
+                    move = i;
+                }
+                else {
+                    System.out.println("IDK");
+                }
+                // If it's a valid location and Enemy hasn't seen it:
+                if (!(mazeinfo.maze[ycoord][xcoord].isExplored() && mazeinfo.seen[ycoord][xcoord])) {
+                    mazeinfo.seen[ycoord][xcoord] = true;
+                    movelist.Push(ycoord, xcoord, move);
+                    //return;
                 }
             }
-        //}       
+            
+        }      
     }
     
     // Move at random within a certain area
@@ -143,7 +129,6 @@ public class MazeMove {
             Random randomGenerator = new Random();
             MoveInfo currentCell = movelist.Pop();
             int[] brokenWalls; // Stores ints corresponding to only the possible Walls (broken) which we will select from (i.e. ignoring unbroken ones)
-            //boolean lookAround = false;
             
             if (movelist.length >= 0){ // only record previous moves if the Enemy has moved at least once (not counting the start 'move')
                 onebehindmovelist.Push(currentCell.y, currentCell.x, currentCell.move); // Push the unchanged values
@@ -738,7 +723,7 @@ public class MazeMove {
     public boolean isTargetable(int targetY, int targetX){
         MoveInfo currentCell = movelist.Peek();
 
-        if (currentCell.x == targetX && currentCell.y < targetY){ // Target is directly to the South
+        if (currentCell.x == targetX && currentCell.y < targetY && currentCell.move == MoveInfo.SOUTH){ // Target is directly to the South AND we're facing South
             int y = currentCell.y;
             int x = currentCell.x;
             while (maze[y][x].southwall.isBroken()){
@@ -751,7 +736,7 @@ public class MazeMove {
             System.out.println("Target not visible");
             return false; // is not targetable          
         }
-        else if (currentCell.x == targetX && currentCell.y > targetY){ // Target is directly to the North
+        else if (currentCell.x == targetX && currentCell.y > targetY && currentCell.move == MoveInfo.NORTH){ // Target is directly to the North AND we're facing North
             int y = currentCell.y;
             int x = currentCell.x;
             while (maze[y][x].northwall.isBroken()){
@@ -764,7 +749,7 @@ public class MazeMove {
             System.out.println("Target not visible");
             return false; // is not targetable
         }
-        else if (currentCell.x > targetX && currentCell.y == targetY){ // Target is directly to the West
+        else if (currentCell.x > targetX && currentCell.y == targetY && currentCell.move == MoveInfo.WEST){ // Target is directly to the West AND we're facing West
             int y = currentCell.y;
             int x = currentCell.x;
             while (maze[y][x].westwall.isBroken()){
@@ -777,7 +762,7 @@ public class MazeMove {
             System.out.println("Target not visible");
             return false; // is not targetable
         }
-        else if (currentCell.x < targetX && currentCell.y == targetY){ // Target is directly to the East
+        else if (currentCell.x < targetX && currentCell.y == targetY && currentCell.move == MoveInfo.EAST){ // Target is directly to the East AND we're facing East
             int y = currentCell.y;
             int x = currentCell.x;
             while (maze[y][x].eastwall.isBroken()){

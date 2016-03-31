@@ -181,7 +181,7 @@ public class MazeView extends JFrame implements KeyListener {
 //                    g.setColor(Color.red);
 //                    g.fillRect(x + (scalex / 2), y + (scaley / 2), cx, cy);
 //                }
-                if ((j == mazeinfo.getTargetM()) && (i == mazeinfo.getTargetN())) {
+                if ((j == mazeinfo.getTargetY()) && (i == mazeinfo.getTargetX())) {
                     // Draw the exit
                     g.drawImage(jeep, x + (scalex / 2), y + (scaley / 2) - 50, cx, cy, null);
                     //g.setColor(Color.LIGHT_GRAY);
@@ -339,7 +339,7 @@ public class MazeView extends JFrame implements KeyListener {
         }
         
         // Check for 'stop conditions'
-        if (playercurrent.y == mazeinfo.getTargetM() && playercurrent.x == mazeinfo.getTargetN()) { // Player's coords are the exit coords
+        if (playercurrent.y == mazeinfo.getTargetY() && playercurrent.x == mazeinfo.getTargetX()) { // Player's coords are the exit coords
             player.setDone();
             EndGame("win");
         } 
