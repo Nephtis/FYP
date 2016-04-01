@@ -81,6 +81,9 @@ public class PrimMazeInfo {
             }
         }
     }
+    public void updateCells(){ // Update cells (costs) for A*
+        
+    }
     public void setStartM(int newM){
         startM = newM;
     }

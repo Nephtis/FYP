@@ -48,7 +48,7 @@ public class Enemy extends Agent{
             case (2):
                 System.out.println("Spawning bottom left (ish)");
                 mazeinfo.setStartM(8);
-                mazeinfo.setStartN(3);
+                mazeinfo.setStartN(4);
                 view.enemyspawn++;
                 break;
             case (3):
@@ -228,6 +228,8 @@ public class Enemy extends Agent{
                         }
                     }
                     
+                    moves.UpdateAStarStartCoords(moves.getYCoord(), moves.getXCoord()); // Set the initial coords for this A* chase (can get changed later if we see player again)
+                    
                     while (i_alert < 20){ // (time in ms is still used at the top level of the behaviour, this just says do it for ONLY 20 'iterations')
                         // Wait time between each move
                         if (!(view.running)){
@@ -242,15 +244,17 @@ public class Enemy extends Agent{
                             break;
                         }
                         try {
-                            //moves.MoveToCoords(player.GetLocation().y, player.GetLocation().x);
-                            //moves.PursuePlayer(player.GetLocation().y, player.GetLocation().x);
-                            if (!moves.isTargetable(player.GetLocation().y, player.GetLocation().x)){ // If player is not visible to the agent
-                                //moves.AStarPursuePlayer(player.GetLocation().y, player.GetLocation().x, mastermazeinfo);
-                                // Head for last known loc...
-                                moves.MoveToCoords(mastermazeinfo.getPlayerLastKnownY(), mastermazeinfo.getPlayerLastKnownX());
+                            if (!moves.isTargetable(player.GetLocation().y, player.GetLocation().x)){ // If player is not visible to the agent                           
+                                moves.AStarMoveToCoords(moves.GetAStarStartY(), moves.GetAStarStartX(), mastermazeinfo.getPlayerLastKnownY(), mastermazeinfo.getPlayerLastKnownY(), mastermazeinfo);
+                                // Head for last known loc...                               
                             }
-                            else { // If the player is visible, just rush towards them
-                                moves.BlindlyPursuePlayer(player.GetLocation().y, player.GetLocation().x);
+                            else { // If the player is visible, just rush towards them and update their last known coords
+                                mastermazeinfo.setPlayerLastKnownX(player.GetLocation().x); // Shared by all agents - let everyone know the new coords
+                                mastermazeinfo.setPlayerLastKnownY(player.GetLocation().y);
+                                moves.ResetClosedCells(); // Our old calculations will now be irrelevant, so reset them
+                                moves.ResetOpenCells();
+                                moves.UpdateAStarStartCoords(moves.getYCoord(), moves.getXCoord()); // Update the coords for this A* chase in case we lose the player
+                                moves.BlindlyPursuePlayer(player.GetLocation().y, player.GetLocation().x); // Move towards the player
                             }
                             Thread.sleep(500);
                         } catch (InterruptedException ex) {
@@ -275,6 +279,9 @@ public class Enemy extends Agent{
                     // Clear the "seen" and "costs" arrays
                     mazeinfo.resetSeen();
                     mazeinfo.resetCosts();
+                    
+                    moves.ResetClosedCells();
+                    moves.ResetOpenCells();
                     
                     // Send message to other agents (this way even if they're somehow out of sync they will all 'move on' together)
                     ACLMessage searchmsg = new ACLMessage(ACLMessage.PROPOSE);

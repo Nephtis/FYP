@@ -106,7 +106,7 @@ public class MazeView extends JFrame implements KeyListener {
         ContainerController mainContainer = rt.createMainContainer(p); 
         
         try{
-            AgentController ac = mainContainer.createNewAgent("enemy1", 
+            /*AgentController ac = mainContainer.createNewAgent("enemy1", 
             "AgentLearning.Enemy", params); // With the params declared earlier
             ac.start();
             AgentController ac2 = mainContainer.createNewAgent("enemy2", "AgentLearning.Enemy", params);
@@ -116,10 +116,10 @@ public class MazeView extends JFrame implements KeyListener {
             AgentController ac4 = mainContainer.createNewAgent("enemy4", "AgentLearning.Enemy", params);
             ac4.start();
             AgentController ac5 = mainContainer.createNewAgent("enemy5", "AgentLearning.Enemy", params);
-            ac5.start();
-            /*AgentController ac = mainContainer.createNewAgent("boss", 
+            ac5.start();*/
+            AgentController ac = mainContainer.createNewAgent("boss", 
             "AgentLearning.Boss", params);
-            ac.start();*/
+            ac.start();
         } catch (StaleProxyException e){
             System.out.println("StaleProxyException caught...");
         }
@@ -295,12 +295,12 @@ public class MazeView extends JFrame implements KeyListener {
         }
         
         //System.out.println("Costs:");
-        for (int i = 0; i < mazeinfo.costs.length; i++){
+        /*for (int i = 0; i < mazeinfo.costs.length; i++){
             for (int j = 0; j < mazeinfo.costs.length; j++){ // i and j are the same (costs has the same width and height)
                 System.out.print(mazeinfo.costs[i][j] + " ");
             }
             System.out.println(""); // new line for every row
-        }
+        }*/
     }
     
     // Draws the player
