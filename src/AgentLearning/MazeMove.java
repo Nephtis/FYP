@@ -358,9 +358,8 @@ public class MazeMove {
         movelist.Push(ycoord, xcoord, move);
     }
 
-    // NEEDS TWEAKING
     // Implementation of the A* algorithm for pursuing the player. Uses heuristics to determine the best (least costly) cell to move to each time.
-    public void AStarMoveToCoords(int startY, int startX, int targetY, int targetX, PrimMazeInfo mazeinfo) {
+    public void AStarMoveToCoords(int targetY, int targetX, PrimMazeInfo mazeinfo) {
         // Work out the cost of moving to whatever cells we have available
         MoveInfo currentCell = movelist.Pop();
 
@@ -863,6 +862,62 @@ public class MazeMove {
             //System.out.println("Target not visible");
             return false; // is not targetable
         } else if (currentCell.x < targetX && currentCell.y == targetY && currentCell.move == MoveInfo.EAST) { // Target is directly to the East AND we're facing East
+            int y = currentCell.y;
+            int x = currentCell.x;
+            while (maze[y][x].eastwall.isBroken()) {
+                ++x;
+                if (x == targetX) {
+                    System.out.println("Target visible to the East");
+                    return true; // is targetable
+                }
+            }
+            //System.out.println("Target not visible");
+            return false; // is not targetable
+        }
+        //System.out.println("Target not visible");
+        return false; // is not targetable
+    }
+    
+    public boolean isTargetableAnyDir(int targetY, int targetX) {
+        MoveInfo currentCell = movelist.Peek();
+
+        if (currentCell.x == targetX && currentCell.y < targetY) {
+            int y = currentCell.y;
+            int x = currentCell.x;
+            while (maze[y][x].southwall.isBroken()) {
+                ++y;
+                if (y == targetY) {
+                    System.out.println("Target visible to the South");
+                    return true; // is targetable
+                }
+            }
+            //System.out.println("Target not visible");
+            return false; // is not targetable          
+        } else if (currentCell.x == targetX && currentCell.y > targetY) {
+            int y = currentCell.y;
+            int x = currentCell.x;
+            while (maze[y][x].northwall.isBroken()) {
+                --y;
+                if (y == targetY) {
+                    System.out.println("Target visible to the North");
+                    return true; // is targetable
+                }
+            }
+            //System.out.println("Target not visible");
+            return false; // is not targetable
+        } else if (currentCell.x > targetX && currentCell.y == targetY) {
+            int y = currentCell.y;
+            int x = currentCell.x;
+            while (maze[y][x].westwall.isBroken()) {
+                --x;
+                if (x == targetX) {
+                    System.out.println("Target visible to the West");
+                    return true; // is targetable  
+                }
+            }
+            //System.out.println("Target not visible");
+            return false; // is not targetable
+        } else if (currentCell.x < targetX && currentCell.y == targetY) {
             int y = currentCell.y;
             int x = currentCell.x;
             while (maze[y][x].eastwall.isBroken()) {

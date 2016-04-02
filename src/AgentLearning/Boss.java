@@ -26,7 +26,7 @@ public class Boss extends Agent {
         moves = new MazeMove(maze, mazeinfo);
 
         // Add a TickerBehaviour that does things every (0.3) seconds
-        addBehaviour(new Movement(this, 300));
+        addBehaviour(new Movement(this, 50));
 
         System.out.println("    " + getAID().getName() + ": End of setup()");
     } // end of setup
@@ -68,7 +68,7 @@ public class Boss extends Agent {
 
             try {
                 if (!moves.isTargetable(player.GetLocation().y, player.GetLocation().x)) { // If player is not visible to the agent                           
-                    moves.AStarMoveToCoords(moves.GetAStarStartY(), moves.GetAStarStartX(), mastermazeinfo.getPlayerLastKnownY(), mastermazeinfo.getPlayerLastKnownX(), mastermazeinfo);
+                    moves.AStarMoveToCoords(mastermazeinfo.getPlayerLastKnownY(), mastermazeinfo.getPlayerLastKnownX(), mastermazeinfo);
                     // Head for last known loc...                               
                 } else { // If the player is visible, just rush towards them and update their last known coords
                     mastermazeinfo.setPlayerLastKnownX(player.GetLocation().x); // Shared by all agents - let everyone know the new coords

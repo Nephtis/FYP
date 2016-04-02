@@ -199,16 +199,16 @@ public class Enemy extends Agent{
                         mastermazeinfo.setPlayerLastKnownX(player.GetLocation().x);
                             
                         // Update GUI info
-                        System.out.println("    "+getAID().getName()+": Player in my line of sight! Waiting 0.5 secs...");
+                        System.out.println("    "+getAID().getName()+": Player in my line of sight!");
                         view.alertmode = true;
                         view.PrintGUIMessage("alert"); // Display the alert message on the GUI
                         // Alert message ensures other agents don't also update it (i.e. it only gets painted once)
-                        try {
+                        /*try {
                             Thread.sleep(500); // This has to be surrounded in a try/catch
                         } catch (InterruptedException ex) {
                             Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        System.out.println("    "+getAID().getName()+": Done waiting, go to alert mode!");
+                        }*/
+                        System.out.println("    "+getAID().getName()+": Going to alert mode!");
                         step = 1; // change to different 'action'
                         break;
                     }
@@ -244,16 +244,13 @@ public class Enemy extends Agent{
                             break;
                         }
                         try {
-                            if (!moves.isTargetable(player.GetLocation().y, player.GetLocation().x)){ // If player is not visible to the agent                           
-                                moves.AStarMoveToCoords(moves.GetAStarStartY(), moves.GetAStarStartX(), mastermazeinfo.getPlayerLastKnownY(), mastermazeinfo.getPlayerLastKnownY(), mastermazeinfo);
+                            if (!moves.isTargetableAnyDir(player.GetLocation().y, player.GetLocation().x)){ // If player is not visible to the agent                           
+                                moves.AStarMoveToCoords(mastermazeinfo.getPlayerLastKnownY(), mastermazeinfo.getPlayerLastKnownX(), mastermazeinfo);
                                 // Head for last known loc...                               
                             }
                             else { // If the player is visible, just rush towards them and update their last known coords
                                 mastermazeinfo.setPlayerLastKnownX(player.GetLocation().x); // Shared by all agents - let everyone know the new coords
                                 mastermazeinfo.setPlayerLastKnownY(player.GetLocation().y);
-                                moves.ResetClosedCells(); // Our old calculations will now be irrelevant, so reset them
-                                moves.ResetOpenCells();
-                                moves.UpdateAStarStartCoords(moves.getYCoord(), moves.getXCoord()); // Update the coords for this A* chase in case we lose the player
                                 moves.BlindlyPursuePlayer(player.GetLocation().y, player.GetLocation().x); // Move towards the player
                             }
                             Thread.sleep(500);
@@ -305,12 +302,12 @@ public class Enemy extends Agent{
                     view.PrintGUIMessage("search");
                     while (i_search < 20){
                         // Wait time between each move
-                        try {
-                            Thread.sleep(600);
+                        //try {
+                        //    Thread.sleep(600);
                             moves.SearchArea(moves.getXCoord(), moves.getYCoord());
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
-                        }
+                        //} catch (InterruptedException ex) {
+                        //    Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
+                        //}
                         
                         view.paintEnemy(moves.GetLocation(), moves);
                         i_search++;
@@ -359,15 +356,15 @@ public class Enemy extends Agent{
                             alertmsg.setConversationId("alert mode");
                             alertmsg.setReplyWith("inform"+System.currentTimeMillis());
                             myAgent.send(alertmsg);
-                            System.out.println("    "+getAID().getName()+": Player in my line of sight! Waiting 0.5 secs...");
+                            System.out.println("    "+getAID().getName()+": Player in my line of sight!");
                             view.alertmode = true;
                             view.PrintGUIMessage("alert"); // Display the alert message on the GUI
-                            try {
+                            /*try {
                                 Thread.sleep(500); // This has to be surrounded in a try/catch
                             } catch (InterruptedException ex) {
                                 Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                            System.out.println("    "+getAID().getName()+": Done waiting, go to alert mode!");
+                            }*/
+                            System.out.println("    "+getAID().getName()+": Going to alert mode!");
                             step = 1; // change to different 'action'
                             break;
                         }
@@ -386,12 +383,12 @@ public class Enemy extends Agent{
                     System.out.println("    "+getAID().getName()+": Entering caution mode");
                     // Do caution stuff
                     while (i_caution < 30){
-                        try {
-                            Thread.sleep(700);
+                        //try {
+                         //   Thread.sleep(700);
                             moves.SearchArea(moves.getXCoord(), moves.getYCoord());
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
-                        }
+                        //} catch (InterruptedException ex) {
+                        //    Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
+                        //}
                         
                         view.paintEnemy(moves.GetLocation(), moves);
                         i_caution++;
@@ -437,15 +434,15 @@ public class Enemy extends Agent{
                             alertmsg.setConversationId("alert mode");
                             alertmsg.setReplyWith("inform"+System.currentTimeMillis());
                             myAgent.send(alertmsg);
-                            System.out.println("    "+getAID().getName()+": Player in my line of sight! Waiting 1 secs (so player can move away)");
+                            System.out.println("    "+getAID().getName()+": Player in my line of sight!");
                             view.alertmode = true;
                             view.PrintGUIMessage("alert"); // Display the alert message on the GUI
-                            try {
+                            /*try {
                                 Thread.sleep(500); // This has to be surrounded in a try/catch
                             } catch (InterruptedException ex) {
                                 Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                            System.out.println("    "+getAID().getName()+": Done waiting, go to alert mode!");
+                            }*/
+                            System.out.println("    "+getAID().getName()+": Going to alert mode!");
                             step = 1; // change to different 'action'
                             break;
                         }
