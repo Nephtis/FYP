@@ -381,7 +381,7 @@ public class MazeMove {
         int leastCostIndex = 0;
         int dist = 0; // Distance between where agent is and where player is (not quite... purpose has changed a bit/is fluid)
 
-        //System.out.println("Heuristic cost is: " + heuristic);
+        //System.out.println("abs 5:" + Math.abs(5) + ", abd -5: " + Math.abs(-5));
         /*
          move the current node to the closed list and consider all of its neighbours
          for (each neighbour)
@@ -412,21 +412,17 @@ public class MazeMove {
         //while (ycoord != playerY && xcoord != playerX){ // This needs to happen on each pursuit iteration, not here (otherwise we'd just "teleport" to the player and catch them immediately)
         if (maze[ycoord][xcoord].northwall.isBroken()) { // If we can move North, how much does North cost?
             tempY = ycoord - 1; // Pretend we've moved there
-            dist = (xcoord - targetX) + (tempY - targetY); // Cost to reach this node from start node
-            if (dist < 0) { // e.g. if the distance is the "other way around" and negative, we just want the actual number of cells between us and player
-                dist = dist + (-dist * 2); // e.g. if dist is -3, we just want 3, so: -3 + (--3 * 2), -- turns into +, so this ends up as -3 + 6 = 3
-            }
+            // Use Math.abs() because we just want the positive "distance" value, e.g. it might be -1 due to the coord but technically the distance is still 1
+            dist = Math.abs(xcoord - targetX) + Math.abs(tempY - targetY); // Cost to reach this node (should always be 1 since all single cell traversals are 1 in this case...)
             int hx = Math.abs(xcoord - targetX);
-            if (hx < 0) {
-                hx = hx + (-hx * 2);
-            }
             int hy = Math.abs(ycoord - targetY);
-            if (hy < 0) {
-                hy = hy + (-hy * 2);
-            }
             int heuristic = hx + hy; // Use Manhattan distance as basic heuristic
             costNORTH = dist + heuristic;
-                //brokenWalls = FindBrokenWalls(tempY, xcoord); // How many walls does that cell have?
+            brokenWalls = FindBrokenWalls(tempY, xcoord); // How many walls does that cell have?
+            if (brokenWalls.length == 1){ // If it's a dead-end (only 1 broken wall, the way out)
+                System.out.println("NORTH is a dead-end...");
+                costNORTH += 10; // Add a big cost
+            }
             //costNORTH = costNORTH - brokenWalls.length; // More walls = worse?
             //System.out.println("NORTH has " + brokenWalls.length + " broken walls");
             if (mazeinfo.seen[tempY][xcoord]) {
@@ -436,37 +432,33 @@ public class MazeMove {
                 //System.out.println("North cost is " + costNORTH);
             // Assign to cost array
 
-            System.out.println("NORTH total cost, dist: " + dist + " + heuristic: " + heuristic + ", - broken walls: " + brokenWalls.length + " = " + costNORTH);
+            System.out.println("NORTH total cost, dist: " + dist + " + heuristic: " + heuristic + " = " + costNORTH);
         } else {
             costNORTH = 100; // Assign an abnormally large cost to show we don't want to go through the wall - otherwise when we skip a wall because it's not broken, the "cost" will remain at 0 (which is "less" than the others and so "better")
         }
         costs[0] = costNORTH; // Add to costs array
         //mazeinfo.costs[tempY][xcoord] = costNORTH;
-        if (maze[ycoord][xcoord].eastwall.isBroken()) { // Not "else if" because we want to look at all potential directions and weigh their cost
+        if (maze[ycoord][xcoord].eastwall.isBroken()) { // Not "else if" because we want to look at ALL potential directions and weigh their cost
             tempX = xcoord + 1;
-            dist = (tempX - targetX) + (ycoord - targetY);
-            if (dist < 0) {
-                dist = dist + (-dist * 2);
-            }
+            dist = Math.abs(tempX - targetX) + Math.abs(ycoord - targetY);
             int hx = Math.abs(xcoord - targetX);
-            if (hx < 0) {
-                hx = hx + (-hx * 2);
-            }
             int hy = Math.abs(ycoord - targetY);
-            if (hy < 0) {
-                hy = hy + (-hy * 2);
-            }
             int heuristic = hx + hy;
             costEAST = dist + heuristic;
-                //brokenWalls = FindBrokenWalls(ycoord, tempX);
+            brokenWalls = FindBrokenWalls(ycoord, tempX);
             //costEAST = costEAST - brokenWalls.length;
             //System.out.println("EAST has " + brokenWalls.length + " broken walls");
+
+            if (brokenWalls.length == 1){ // If it's a dead-end
+                System.out.println("EAST is a dead-end...");
+                costEAST += 10; // Add a big cost
+            }
             if (mazeinfo.seen[ycoord][tempX]) {
                     //costEAST = costEAST + mazeinfo.costs[ycoord][tempX];
                 costEAST += mazeinfo.timesVisited[ycoord][tempX];
             }
             //System.out.println("East cost is " + costEAST);
-            System.out.println("EAST total cost, dist: " + dist + " + heuristic: " + heuristic + ", - broken walls: " + brokenWalls.length + " = " + costEAST);
+            System.out.println("EAST total cost, dist: " + dist + " + heuristic: " + heuristic + " = " + costEAST);
         } else {
             costEAST = 100;
         }
@@ -474,30 +466,25 @@ public class MazeMove {
         //mazeinfo.costs[ycoord][tempX] = costEAST;
         if (maze[ycoord][xcoord].southwall.isBroken()) {
             tempY = ycoord + 1;
-            dist = (xcoord - targetX) + (tempY - targetY);
-            if (dist < 0) {
-                dist = dist + (-dist * 2);
-            }
+            dist = Math.abs(xcoord - targetX) + Math.abs(tempY - targetY);
             int hx = Math.abs(xcoord - targetX);
-            if (hx < 0) {
-                hx = hx + (-hx * 2);
-            }
             int hy = Math.abs(ycoord - targetY);
-            if (hy < 0) {
-                hy = hy + (-hy * 2);
-            }
             int heuristic = hx + hy;
             costSOUTH = dist + heuristic;
-                //brokenWalls = FindBrokenWalls(tempY, xcoord);
+            brokenWalls = FindBrokenWalls(tempY, xcoord);
             //costSOUTH = costSOUTH - brokenWalls.length;
             //System.out.println("SOUTH has " + brokenWalls.length + " broken walls");
+            if (brokenWalls.length == 1){ // If it's a dead-end
+                System.out.println("SOUTH is a dead-end...");
+                costSOUTH += 10; // Add a big cost
+            }
             if (mazeinfo.seen[tempY][xcoord]) {
                     //costSOUTH = costSOUTH + mazeinfo.costs[tempY][xcoord];
 
                 costSOUTH += mazeinfo.timesVisited[tempY][xcoord];
             }
             //System.out.println("South cost is " + costSOUTH);
-            System.out.println("SOUTH total cost, dist: " + dist + " + heuristic: " + heuristic + ", - broken walls: " + brokenWalls.length + " = " + costSOUTH);
+            System.out.println("SOUTH total cost, dist: " + dist + " + heuristic: " + heuristic + " = " + costSOUTH);
         } else {
             costSOUTH = 100;
         }
@@ -505,29 +492,24 @@ public class MazeMove {
         costs[2] = costSOUTH;
         if (maze[ycoord][xcoord].westwall.isBroken()) {
             tempX = xcoord - 1;
-            dist = (tempX - targetX) + (ycoord - targetY);
-            if (dist < 0) {
-                dist = dist + (-dist * 2);
-            }
+            dist = Math.abs(tempX - targetX) + Math.abs(ycoord - targetY);
             int hx = Math.abs(xcoord - targetX);
-            if (hx < 0) {
-                hx = hx + (-hx * 2);
-            }
             int hy = Math.abs(ycoord - targetY);
-            if (hy < 0) {
-                hy = hy + (-hy * 2);
-            }
             int heuristic = hx + hy;
             costWEST = dist + heuristic;
-                //brokenWalls = FindBrokenWalls(ycoord, tempX);
+            brokenWalls = FindBrokenWalls(ycoord, tempX);
             //costWEST = costWEST - brokenWalls.length;
             //System.out.println("WEST has " + brokenWalls.length + " broken walls");
+            if (brokenWalls.length == 1){ // If it's a dead-end
+                System.out.println("WEST is a dead-end...");
+                costWEST += 10; // Add a big cost
+            }
             if (mazeinfo.seen[ycoord][tempX]) {
                     //costWEST = costWEST + mazeinfo.costs[ycoord][tempX];
                 costWEST += mazeinfo.timesVisited[ycoord][tempX];
             }
             //System.out.println("West cost is " + costWEST);
-            System.out.println("WEST total cost, dist: " + dist + " + heuristic: " + heuristic + ", - broken walls: " + brokenWalls.length + " = " + costWEST);
+            System.out.println("WEST total cost, dist: " + dist + " + heuristic: " + heuristic + " = " + costWEST);
         } else {
             costWEST = 100;
         }
