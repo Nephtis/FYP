@@ -249,6 +249,7 @@ public class Enemy extends Agent{
                                 // Head for last known loc...                               
                             }
                             else { // If the player is visible, just rush towards them and update their last known coords
+                                mazeinfo.resetSeen(); // Our old "seen" cells will now be irrelevant, so reset them
                                 mastermazeinfo.setPlayerLastKnownX(player.GetLocation().x); // Shared by all agents - let everyone know the new coords
                                 mastermazeinfo.setPlayerLastKnownY(player.GetLocation().y);
                                 moves.BlindlyPursuePlayer(player.GetLocation().y, player.GetLocation().x); // Move towards the player
@@ -273,12 +274,8 @@ public class Enemy extends Agent{
                     }
                     i_alert = 0; // reset the alert counter
                     
-                    // Clear the "seen" and "costs" arrays
+                    // Clear the "seen" array
                     mazeinfo.resetSeen();
-                    mazeinfo.resetCosts();
-                    
-                    moves.ResetClosedCells();
-                    moves.ResetOpenCells();
                     
                     // Send message to other agents (this way even if they're somehow out of sync they will all 'move on' together)
                     ACLMessage searchmsg = new ACLMessage(ACLMessage.PROPOSE);
@@ -371,7 +368,6 @@ public class Enemy extends Agent{
                         
                         i_search = 0;
                         mazeinfo.resetSeen();
-                        mazeinfo.resetCosts();
                         step = 3;
                         break;
                     }

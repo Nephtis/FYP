@@ -20,7 +20,7 @@ public class Boss extends Agent {
         System.out.println("Begin boss setup()");
         Object[] args = getArguments();  // [0] = maze, [1] = mazeinfo, [2] = maze view, [3] = player
         Cell[][] maze = (Cell[][]) args[0];
-        PrimMazeInfo mazeinfo = new PrimMazeInfo(maze, 0, 0, 0, 0);//(PrimMazeInfo) args[1];
+        PrimMazeInfo mazeinfo = new PrimMazeInfo(maze, 0, 0, 0, 0);
         MazeView view = (MazeView) args[2];
         // Initialize move list
         moves = new MazeMove(maze, mazeinfo);
@@ -59,7 +59,6 @@ public class Boss extends Agent {
             }
             
             if (setup){
-            //System.out.println("Times visited: " + mazeinfo.timesVisited[moves.getYCoord()][moves.getXCoord()]);
                 moves.UpdateAStarStartCoords(moves.getYCoord(), moves.getXCoord());
                 mastermazeinfo.setPlayerLastKnownX(player.GetLocation().x);
                 mastermazeinfo.setPlayerLastKnownY(player.GetLocation().y);
@@ -73,8 +72,6 @@ public class Boss extends Agent {
                 } else { // If the player is visible, just rush towards them and update their last known coords
                     mastermazeinfo.setPlayerLastKnownX(player.GetLocation().x); // Shared by all agents - let everyone know the new coords
                     mastermazeinfo.setPlayerLastKnownY(player.GetLocation().y);
-                    moves.ResetClosedCells(); // Our old calculations will now be irrelevant, so reset them
-                    moves.ResetOpenCells();
                     moves.UpdateAStarStartCoords(moves.getYCoord(), moves.getXCoord()); // Update the coords for this A* chase in case we lose the player
                     moves.BlindlyPursuePlayer(player.GetLocation().y, player.GetLocation().x); // Move towards the player
                 }
@@ -82,13 +79,7 @@ public class Boss extends Agent {
             } catch (InterruptedException ex) {
                 Logger.getLogger(Enemy.class.getName()).log(Level.SEVERE, null, ex);
             }
-
-            /*if (mazeinfo.timesVisited[moves.getYCoord()][moves.getXCoord()] > 3) { // Am I dithering around in one area?
-                System.out.println("blindly");
-                counter++;
-            }*/
-
-            //view.paintCosts(moves.GetLocation(), moves, mastermazeinfo);
+            
             view.paintBoss(moves.GetLocation(), moves, mastermazeinfo);
 
             if ((moves.getYCoord() == player.GetLocation().y) && (moves.getXCoord() == player.GetLocation().x)) {
