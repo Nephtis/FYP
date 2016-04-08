@@ -192,27 +192,23 @@ public class MazeMove {
             }
             // And move in that direction
             if (leastCostIndex == 0) { // North has the least cost
-                System.out.println("Trying to move North");
                 --ycoord;
                 move = 1;
                 movelist.Push(ycoord, xcoord, move);
             } else if (leastCostIndex == 1) { // East has the least cost
-                System.out.println("Trying to move East");
                 ++xcoord;
                 move = 2;
                 movelist.Push(ycoord, xcoord, move);
             } else if (leastCostIndex == 2) { // South has the least cost
-                System.out.println("Trying to move South");
                 ++ycoord;
                 move = 3;
                 movelist.Push(ycoord, xcoord, move);
             } else if (leastCostIndex == 3) { // West has the least cost
-                System.out.println("Trying to move West");
                 --xcoord;
                 move = 4;
                 movelist.Push(ycoord, xcoord, move);
             } else {
-                System.out.println("ERROR"); // Just in case...
+                System.out.println("ERROR - NO LEAST COST DETERMINED"); // Just in case...
             }
         } else {
             // Where can we move?
@@ -288,7 +284,7 @@ public class MazeMove {
         // cost of potential locs and getting stuck because you'll trap yourself with higher cost potential locs
         mazeinfo.timesVisited[ycoord][xcoord]++;
         }
-        //while (ycoord != playerY && xcoord != playerX){ // This needs to happen on each pursuit iteration, not here (otherwise we'd just "teleport" to the player and catch them immediately)
+        // This needs to happen on each pursuit iteration (otherwise we'd just "teleport" to the player and catch them immediately)
         if (maze[ycoord][xcoord].northwall.isBroken()) { // If we can move North, how much does North cost?
             tempY = ycoord - 1; // Pretend we've moved there
             // Use Math.abs() because we just want the positive "distance" value, e.g. it might be -1 due to the coord but technically the distance is still 1
@@ -300,7 +296,7 @@ public class MazeMove {
             brokenWalls = FindBrokenWalls(tempY, xcoord); // How many walls does that cell have?
             if (brokenWalls.length == 1){ // If it's a dead-end (only 1 broken wall, the way out)
                 System.out.println("NORTH is a dead-end...");
-                costNORTH += 10; // Add a big cost
+                costNORTH += 10; // Add a big cost, but not an infinite one because we maystill need to re-explore it
             }
             //costNORTH = costNORTH - brokenWalls.length; // More walls = worse? Uncomment this for just another heuristic, but it's not really necessary
             if (mazeinfo.seen[tempY][xcoord]) {
@@ -385,20 +381,6 @@ public class MazeMove {
         int leastCost = costs[0];
         for (int i = 0; i < costs.length; i++) { // But this will mean it ALWAYS takes the latest cost if there's a tie, which could make it get stuck
             if (costs[i] < leastCost) {
-                leastCost = costs[i];
-                leastCostIndex = i;
-            }
-        }
-
-        // ...So check if there are multiple "lowest" costs, use directional priority to determine the one we take
-        int count = 0;
-        for (int i = 0; i < costs.length; i++) {
-            if (costs[i] == leastCost) {
-                count++; // So we don't count the same lowest cost as "equal to the lowest cost"
-                if (count > 1){
-                    System.out.println("Multiple lowest costs, using priority");
-                    
-                }
                 leastCost = costs[i];
                 leastCostIndex = i;
             }

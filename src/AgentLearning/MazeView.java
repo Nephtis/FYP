@@ -106,6 +106,7 @@ public class MazeView extends JFrame implements KeyListener {
         ContainerController mainContainer = rt.createMainContainer(p); 
         
         try{
+            // Uncomment the "enemy" agents for the full MAS
             AgentController ac = mainContainer.createNewAgent("enemy1", 
             "AgentLearning.Enemy", params); // With the params declared earlier
             ac.start();
@@ -117,6 +118,7 @@ public class MazeView extends JFrame implements KeyListener {
             ac4.start();
             AgentController ac5 = mainContainer.createNewAgent("enemy5", "AgentLearning.Enemy", params);
             ac5.start();
+            // Uncomment this "boss" agent for the pursuit-only agent
             /*AgentController ac = mainContainer.createNewAgent("boss", 
             "AgentLearning.Boss", params);
             ac.start();*/
@@ -155,9 +157,9 @@ public class MazeView extends JFrame implements KeyListener {
     public final void paintBG(Graphics g) throws InterruptedException{
         g.setColor(Color.LIGHT_GRAY); // Screen background
         Thread.sleep(100); // No idea why but for some reason it doesn't draw properly unless there's a small delay
-        g.fillRect(0, 0, getWidth(), getHeight());
+        
         // Draw a 'floor' background (currently just using a solid colour so I can paint over it)
-        //g.drawImage(mazefloor, 0, 0, getWidth(), getHeight(), null);
+        g.fillRect(0, 0, getWidth(), getHeight());
         // Draw the Walls of the maze
         for (int j = 0; j < this.height; j++, y += scaley) {
             x = 20; // Reset x every time (?)
@@ -176,15 +178,9 @@ public class MazeView extends JFrame implements KeyListener {
                 if (!(maze[j][i].westwall.isBroken())) {
                     g.drawImage(walltile, x, y, scalex / 5, scaley, null);
                 }
-                // Draw a red square to show where Snake has 'seen'
-//                if (mazeinfo.seen[j][i]) {
-//                    g.setColor(Color.red);
-//                    g.fillRect(x + (scalex / 2), y + (scaley / 2), cx, cy);
-//                }
                 if ((j == mazeinfo.getTargetY()) && (i == mazeinfo.getTargetX())) {
                     // Draw the exit
                     g.drawImage(jeep, x + (scalex / 2), y + (scaley / 2) - 50, cx, cy, null);
-                    //g.setColor(Color.LIGHT_GRAY);
                     if (maze[j][i].northwall.isEdge()) {
                         // Paint over the edge creating a 'way out'
                         g.fillRect(x, y, scalex, scaley / 4);
@@ -293,28 +289,18 @@ public class MazeView extends JFrame implements KeyListener {
                 g.drawImage(bossup, x + (scalex / 2), y + (scaley / 2), mx, my, null);
             }
         }
-        
-        //System.out.println("Costs:");
-        /*for (int i = 0; i < mazeinfo.costs.length; i++){
-            for (int j = 0; j < mazeinfo.costs.length; j++){ // i and j are the same (costs has the same width and height)
-                System.out.print(mazeinfo.costs[i][j] + " ");
-            }
-            System.out.println(""); // new line for every row
-        }*/
     }
     
     // Draws the player
     // Previously I just re-painted the entire GUI, background and all, but that
     // led to an annoying 'flickering' every time it updated.
     public final void paintPlayer(Graphics g) {
-        //MoveInfo current = enemy1.moves.GetLocation(); // Enemy's current pos and direction
         int mx = (scalex * 4) / 8; // Different scale for player + Enemy
         int my = (scaley * 4) / 8;
         
         // Paint over the player's previous location with a blank tile to avoid 'afterimages'
         playerprevious = player.GetPreviousLocation();
         if (playerprevious != null){
-            //System.out.println("Drawing blank");
             x = (playerprevious.x * scalex) + 20;
             y = TOP + 20 + playerprevious.y * scaley;
             g.drawImage(blank, x + (scalex / 2), y + (scaley / 2), mx, my, null);
